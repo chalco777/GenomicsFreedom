@@ -1,6 +1,8 @@
 // Crear fondo interactivo con partículas de ADN
 function createInteractiveBackground() {
     const bg = document.getElementById('interactive-bg');
+    if (!bg) return;
+    
     const particleCount = 50;
     
     for (let i = 0; i < particleCount; i++) {
@@ -50,18 +52,20 @@ function setupFilePreview() {
 
 // Añadir nueva entrada de secuencia
 function addSequenceEntry() {
-    const container = document.querySelector('.sequence-entry').parentNode;
+    const container = document.getElementById('manual-sequences');
+    if (!container) return;
+    
     const newEntry = document.createElement('div');
     newEntry.className = 'sequence-entry';
     newEntry.innerHTML = `
         <div class="form-group">
             <label>Título de la Secuencia</label>
-            <input type="text" placeholder="Ej: Gen TP53 humano">
+            <input type="text" name="manual_titles[]" placeholder="Ej: Gen TP53 humano">
         </div>
         
         <div class="form-group">
             <label>Secuencia Genética (ADN)</label>
-            <textarea placeholder="Ingresa la secuencia de nucleótidos (A, T, C, G)..."></textarea>
+            <textarea name="manual_sequences[]" placeholder="Ingresa la secuencia de nucleótidos (A, T, C, G)..."></textarea>
         </div>
     `;
     container.appendChild(newEntry);
@@ -77,15 +81,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (addSequenceBtn) {
         addSequenceBtn.addEventListener('click', addSequenceEntry);
     }
-    
-    // Botón ejecutar
-    const executeBtn = document.getElementById('execute-btn');
-    if (executeBtn) {
-        executeBtn.addEventListener('click', function() {
-            // Simular envío de datos y redirección a resultados
-            const sequenceTitle = document.getElementById('sequence-title').value || 'Secuencia Genética';
-            localStorage.setItem('sequenceTitle', sequenceTitle);
-            window.location.href = 'results.html';
-        });
-    }
 });
+
+// Al final de main.js
+if (document.getElementById('interactive-bg')) {
+    createInteractiveBackground();
+}

@@ -1,0 +1,112 @@
+/* ... otros estilos ... */
+
+/* Nuevos estatos para estadísticas */
+.base-distribution {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.base-item {
+    display: flex;
+    align-items: center;
+    background-color: rgba(30, 30, 30, 0.5);
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    min-width: 100px;
+}
+
+.base-label {
+    font-weight: bold;
+    margin-right: 0.5rem;
+}
+
+.A { color: #ff6b6b; }
+.T { color: #457b9d; }
+.C { color: #2a9d8f; }
+.G { color: #f4a261; }
+.N { color: #adb5bd; }
+
+.sequence-stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.sequence-stat-card {
+    background-color: rgba(30, 30, 30, 0.5);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 3px solid var(--accent-purple);
+}
+
+.seq-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.seq-stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.seq-stat-label {
+    font-weight: bold;
+    color: var(--text-gray);
+}
+
+/* ... otros estilos ... */
+
+/* Añadir esto al final del archivo */
+
+/* Contenedor principal */
+.results-container {
+    max-width: 1400px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: rgba(30, 30, 30, 0.7);
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+}
+
+/* Cuadrícula de paneles */
+.panel-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.panel {
+    background-color: rgba(40, 40, 40, 0.8);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid rgba(230, 57, 70, 0.2);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.panel-full {
+    grid-column: 1 / -1;
+}
+
+/* Cabeceras de panel */
+.panel h3 {
+    color: var(--accent-blue);
+    border-bottom: 2px solid rgba(69, 123, 157, 0.3);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+}
+
+.panel h3 i {
+    margin-right: 12px;
+    font-size: 1.2rem;
+}

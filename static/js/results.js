@@ -2,58 +2,51 @@
 function visualizeDNA() {
     const dnaContainer = document.getElementById('dna-sequence-display');
     if (!dnaContainer) return;
+
+    // Obtener datos de secuencias del elemento oculto
+    const sequencesDataElement = document.getElementById('sequences-data');
+    if (!sequencesDataElement) return;
     
-    dnaContainer.innerHTML = '';
-    
-    // Generar una secuencia de ADN aleatoria para visualización
-    const bases = ['A', 'T', 'C', 'G'];
+    const sequences = JSON.parse(sequencesDataElement.dataset.sequences);
+    const sequenceSelect = document.getElementById('sequence-select');
+    if (!sequenceSelect) return;
+
+    const sequenceIndex = parseInt(sequenceSelect.value);
+    const sequence = sequences[sequenceIndex].sequence;
+
+    // Generar visualización de ADN
     let dnaSequence = '';
-    const sequenceLength = 120;
-    
-    for (let i = 0; i < sequenceLength; i++) {
-        const base = bases[Math.floor(Math.random() * bases.length)];
-        dnaSequence += `<span class="dna-base ${base}">${base}</span>`;
+    const displaySequence = sequence.substring(0, 120);
+
+    for (let i = 0; i < displaySequence.length; i++) {
+        const base = displaySequence[i].toUpperCase();
+        const validBases = ['A', 'T', 'C', 'G'];
+        const baseClass = validBases.includes(base) ? base : 'N';
+        dnaSequence += `<span class="dna-base ${baseClass}">${base}</span>`;
     }
-    
+
+    if (sequence.length > 120) {
+        dnaSequence += `<span style="color: var(--text-gray);">... (${sequence.length - 120} más)</span>`;
+    }
+
     dnaContainer.innerHTML = dnaSequence;
 }
 
-// Actualizar título de secuencia en resultados
-function updateSequenceTitle() {
-    const sequenceTitle = localStorage.getItem('sequenceTitle');
-    if (sequenceTitle) {
-        const outputElement = document.getElementById('full-analysis-output');
-        if (outputElement) {
-            const content = outputElement.textContent;
-            const updatedContent = content.replace(/Sequence: .+/, `Sequence: ${sequenceTitle}`);
-            outputElement.textContent = updatedContent;
-        }
-    }
+// Actualizar visualización al cambiar secuencia
+function setupSequenceSelector() {
+    const sequenceSelect = document.getElementById('sequence-select');
+    if (!sequenceSelect) return;
+
+    sequenceSelect.addEventListener('change', visualizeDNA);
 }
 
 // Inicializar página de resultados
 document.addEventListener('DOMContentLoaded', function() {
-    // Crear fondo interactivo
-    const bg = document.getElementById('interactive-bg');
-    if (bg) {
-        // Reutilizar la función de fondo de la página principal
-        const mainScript = document.createElement('script');
-        mainScript.src = 'js/main.js';
-        document.head.appendChild(mainScript);
-        
-        // Esperar a que cargue el script principal
-        mainScript.onload = function() {
-            if (typeof createInteractiveBackground === 'function') {
-                createInteractiveBackground();
-            }
-        };
-    }
-    
     // Visualizar secuencia de ADN
     visualizeDNA();
     
-    // Actualizar título de secuencia
-    updateSequenceTitle();
+    // Configurar selector de secuencia
+    setupSequenceSelector();
     
     // Configurar búsqueda de motivos
     const motifInput = document.getElementById('motif-input');
