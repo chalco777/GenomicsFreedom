@@ -1,0 +1,234 @@
+/* Variables de colores */
+:root {
+    --primary-red: #e63946;
+    --dark-red: #d00000;
+    --light-red: #ff6b6b;
+    --dark-bg: #0a0a0a;
+    --light-bg: #1a1a1a;
+    --text-light: #f8f9fa;
+    --text-gray: #adb5bd;
+    --accent-blue: #457b9d;
+    --accent-green: #2a9d8f;
+    --accent-purple: #6a4c93;
+}
+
+/* Estilos generales */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: var(--text-light);
+    overflow-x: hidden;
+    min-height: 100vh;
+    position: relative;
+}
+
+/* Fondo interactivo */
+#interactive-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    overflow: hidden;
+}
+
+.dna-particle {
+    position: absolute;
+    background: rgba(230, 57, 70, 0.2);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+/* Cabecera */
+header {
+    text-align: center;
+    padding: 4rem 2rem 2rem;
+    position: relative;
+}
+
+.logo {
+    font-size: 5rem;
+    margin-bottom: 1rem;
+    color: var(--primary-red);
+    text-shadow: 0 0 20px rgba(230, 57, 70, 0.7);
+    letter-spacing: 2px;
+    animation: pulse 3s infinite;
+}
+
+.tagline {
+    font-size: 1.5rem;
+    color: var(--text-gray);
+    max-width: 800px;
+    margin: 0 auto;
+    font-weight: 300;
+}
+
+/* Secciones */
+section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: rgba(30, 30, 30, 0.8);
+    border-radius: 15px;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(230, 57, 70, 0.1);
+}
+
+h2 {
+    color: var(--primary-red);
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+}
+
+h2 i {
+    margin-right: 10px;
+}
+
+.about-content {
+    line-height: 1.8;
+    font-size: 1.1rem;
+    color: var(--text-gray);
+}
+
+.highlight {
+    color: var(--light-red);
+    font-weight: 600;
+}
+
+/* Formulario de secuencias */
+.sequence-input-container {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.input-method {
+    flex: 1;
+    min-width: 300px;
+}
+
+.input-method h3 {
+    color: var(--accent-blue);
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-light);
+}
+
+input, textarea, select {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(10, 10, 10, 0.5);
+    color: var(--text-light);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--primary-red);
+    box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.2);
+}
+
+textarea {
+    min-height: 150px;
+    resize: vertical;
+    font-family: monospace;
+}
+
+.sequence-entry {
+    background-color: rgba(20, 20, 20, 0.5);
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid var(--accent-green);
+}
+
+.btn {
+    padding: 12px 25px;
+    border-radius: 8px;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn i {
+    margin-right: 8px;
+}
+
+.btn-primary {
+    background-color: var(--primary-red);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--dark-red);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(230, 57, 70, 0.4);
+}
+
+.btn-secondary {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-light);
+}
+
+.btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Animaciones */
+@keyframes pulse {
+    0% { text-shadow: 0 0 10px rgba(230, 57, 70, 0.5); }
+    50% { text-shadow: 0 0 30px rgba(230, 57, 70, 0.8); }
+    100% { text-shadow: 0 0 10px rgba(230, 57, 70, 0.5); }
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .logo {
+        font-size: 3.5rem;
+    }
+    
+    .sequence-input-container {
+        flex-direction: column;
+    }
+}
