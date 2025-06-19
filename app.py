@@ -88,38 +88,98 @@ def calculate_base_percentages(sequences):
 # Cambiar la función generate_histogram
 def generate_histogram(lengths):
     """Genera un histograma de longitudes de secuencia con Seaborn"""
-    plt.figure(figsize=(8, 4))
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    import numpy as np
+    from io import BytesIO
+    import base64
     
-    # Usar Seaborn para un histograma más profesional
-    sns.set(style="whitegrid")
-    ax = sns.histplot(lengths, bins=15, color='#e63946', kde=True, edgecolor='black')
+    # Configuración global de estilo - SIN GRID, TRANSPARENTE
+    plt.style.use('dark_background')  # Fondo oscuro para contraste
+    plt.rcParams.update({
+        'axes.facecolor': 'none',      # Fondo transparente para el área del gráfico
+        'figure.facecolor': 'none',    # Fondo transparente para la figura completa
+        'axes.edgecolor': 'white',     # Color blanco para los ejes
+        'axes.labelcolor': 'white',    # Color blanco para las etiquetas
+        'xtick.color': 'white',        # Color blanco para marcas del eje X
+        'ytick.color': 'white',        # Color blanco para marcas del eje Y
+        'grid.color': 'none'           # Sin grid
+    })
     
-    plt.title('Distribución de Longitudes de Secuencias', fontsize=14)
-    plt.xlabel('Longitud (bp)', fontsize=12)
-    plt.ylabel('Número de Secuencias', fontsize=12)
+    # Crear figura con fondo transparente
+    plt.figure(figsize=(8, 4), facecolor='none')
+    
+    # Crear histograma SIN bordes y SIN grid
+    ax = sns.histplot(
+        lengths, 
+        bins=15, 
+        color='#e63946', 
+        kde=True,
+        edgecolor='none',  # Eliminar bordes de las barras (aquí es donde se debe hacer)
+        line_kws={'color': 'white'}  # Línea KDE en blanco
+    )
+    
+    # Eliminar grid completamente
+    ax.grid(False)
+    
+    # Personalizar título y etiquetas
+    plt.title('Distribución de Longitudes de Secuencias', fontsize=14, color='white')
+    plt.xlabel('Longitud (bp)', fontsize=12, color='white')
+    plt.ylabel('Número de Secuencias', fontsize=12, color='white')
+    
+    # Personalizar línea KDE
+    if ax.lines:  # Si existe la línea KDE
+        ax.lines[0].set_color('white')
     
     # Añadir línea de promedio
     if lengths:
         mean_length = np.mean(lengths)
-        plt.axvline(mean_length, color='#2a9d8f', linestyle='dashed', linewidth=2)
+        plt.axvline(
+            mean_length, 
+            color='#2a9d8f', 
+            linestyle='dashed', 
+            linewidth=2
+        )
         
-        # Calcular posición segura en la esquina superior derecha usando coordenadas relativas
-        plt.text(0.98, 0.98,  # 98% del ancho y alto del área del gráfico
-                f'Media: {mean_length:.0f} bp', 
-                color='#2a9d8f', 
-                fontsize=12,
-                transform=plt.gca().transAxes,  # Usar sistema de coordenadas de ejes
-                horizontalalignment='right',    # Alinear a la derecha
-                verticalalignment='top',       # Alinear en la parte superior
-                bbox=dict(facecolor='white', alpha=0.8, edgecolor='none', boxstyle='round,pad=0.2'))
-    # Guardar en buffer
+        # Texto de media bien posicionado
+        plt.text(
+            0.98, 
+            0.98,  # 98% del ancho y alto
+            f'Media: {mean_length:.0f} bp', 
+            color='#2a9d8f', 
+            fontsize=12,
+            transform=plt.gca().transAxes,  # Coordenadas relativas
+            horizontalalignment='right',    # Alinear derecha
+            verticalalignment='top',        # Alinear arriba
+            bbox=dict(
+                facecolor='black', 
+                alpha=0.5, 
+                edgecolor='none', 
+                boxstyle='round,pad=0.3'
+            )
+        )
+    
+    # Eliminar spines innecesarios
+    sns.despine(left=True, bottom=True)
+    
+    # Personalizar spines visibles
+    for spine in ['left', 'bottom']:
+        ax.spines[spine].set_color('white')
+        ax.spines[spine].set_linewidth(0.5)
+    
+    # Guardar en buffer con fondo transparente
     buffer = BytesIO()
-    plt.savefig(buffer, format='png', bbox_inches='tight', dpi=100)
+    plt.savefig(
+        buffer, 
+        format='png', 
+        bbox_inches='tight', 
+        dpi=100, 
+        transparent=True  # Fondo transparente
+    )
     plt.close()
     
     # Convertir a base64 para incrustar en HTML
     img_data = base64.b64encode(buffer.getvalue()).decode('utf-8')
     return f"data:image/png;base64,{img_data}"
-
 if __name__ == '__main__':
     app.run(debug=True)
