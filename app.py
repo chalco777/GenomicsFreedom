@@ -102,10 +102,16 @@ def generate_histogram(lengths):
     if lengths:
         mean_length = np.mean(lengths)
         plt.axvline(mean_length, color='#2a9d8f', linestyle='dashed', linewidth=2)
-        plt.text(mean_length*1.05, plt.ylim()[1]*0.9, 
-                 f'Media: {mean_length:.0f} bp', 
-                 color='#2a9d8f', fontsize=12)
-    
+        
+        # Calcular posición segura en la esquina superior derecha usando coordenadas relativas
+        plt.text(0.98, 0.98,  # 98% del ancho y alto del área del gráfico
+                f'Media: {mean_length:.0f} bp', 
+                color='#2a9d8f', 
+                fontsize=12,
+                transform=plt.gca().transAxes,  # Usar sistema de coordenadas de ejes
+                horizontalalignment='right',    # Alinear a la derecha
+                verticalalignment='top',       # Alinear en la parte superior
+                bbox=dict(facecolor='white', alpha=0.8, edgecolor='none', boxstyle='round,pad=0.2'))
     # Guardar en buffer
     buffer = BytesIO()
     plt.savefig(buffer, format='png', bbox_inches='tight', dpi=100)
