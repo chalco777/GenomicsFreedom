@@ -159,11 +159,6 @@
                     <div style="margin-top: 1rem;">
                         <p>Resultado del alineamiento múltiple de secuencias:</p>
                         <div style="background-color: rgba(30,30,30,0.5); padding: 10px; border-radius: 8px; font-family: monospace; overflow-x: auto;">
-                            <pre>
-                Seq1: ATGCTAGCTAGCTAGCTAGCT
-                Seq2: ATGCTAGCTAGCTAGCTAGCT
-                Seq3: ATG---GCTAGCTAGCTAGCT
-                            </pre>
                         </div>
                         <div style="margin-top: 1.5rem;">
                             <h4>Matriz de Puntuación</h4>
@@ -197,16 +192,51 @@
                     <div style="margin-top: 1rem; text-align: center;">
                         <p>Árbol filogenético inferido a partir de las secuencias:</p>
                         <div style="background-color: rgba(30,30,30,0.5); padding: 20px; border-radius: 8px; min-height: 200px; display: flex; align-items: center; justify-content: center;">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Phylogenetic_tree.svg/1200px-Phylogenetic_tree.svg.png" alt="Árbol filogenético" style="max-width: 100%; max-height: 250px; border-radius: 8px;">
+                            {% if phylo_tree_img %}
+                                <img src="{{ phylo_tree_img }}" alt="Árbol filogenético" style="max-width: 100%; max-height: 250px; border-radius: 8px;">
+                            {% else %}
+                                <p style="color: var(--text-gray);">Árbol filogenético no disponible (requiere al menos 2 secuencias)</p>
+                            {% endif %}
                         </div>
+                        
+                        {% if distance_matrix and sequences|length > 1 %}
+                        <div style="margin-top: 1.5rem;">
+                            <h4>Calculadora de Distancia Genética</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; max-width: 500px; margin-left: auto; margin-right: auto;">
+                                <div>
+                                    <label for="seq-select-1" style="display: block; margin-bottom: 0.5rem; color: var(--text-gray);">Secuencia 1:</label>
+                                    <select id="seq-select-1" class="form-control" style="width: 100%;">
+                                        {% for seq in sequences %}
+                                        <option value="{{ seq.title }}">{{ seq.title }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="seq-select-2" style="display: block; margin-bottom: 0.5rem; color: var(--text-gray);">Secuencia 2:</label>
+                                    <select id="seq-select-2" class="form-control" style="width: 100%;">
+                                        {% for seq in sequences %}
+                                        <option value="{{ seq.title }}" {% if loop.index == 2 %}selected{% endif %}>{{ seq.title }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div style="background-color: rgba(42, 157, 143, 0.2); padding: 15px; border-radius: 8px; border-left: 4px solid var(--accent-green); margin-top: 1rem;">
+                                <div style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
+                                    <span style="color: var(--text-gray); font-size: 1.1rem;">Distancia genética:</span>
+                                    <span id="distance-result" style="color: var(--accent-green); font-size: 1.5rem; font-weight: bold;">-</span>
+                                </div>
+                                <p style="color: var(--text-gray); font-size: 0.9rem; margin-top: 0.5rem; text-align: center;">
+                                    <i class="fas fa-info-circle"></i> Valores más bajos indican mayor similitud genética
+                                </p>
+                            </div>
+                        </div>
+                        {% else %}
                         <div style="margin-top: 1.5rem;">
                             <h4>Distancia Genética</h4>
-                            <ul style="color: var(--text-gray);">
-                                <li>Seq1 - Seq2: 0.05</li>
-                                <li>Seq1 - Seq3: 0.12</li>
-                                <li>Seq2 - Seq3: 0.08</li>
-                            </ul>
+                            <p style="color: var(--text-gray);">Se requieren al menos 2 secuencias para calcular distancias</p>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
                 <!-- Panel de búsqueda de motivos -->
@@ -218,56 +248,16 @@
                     </div>
                     <button class="btn btn-primary" style="width: 100%;">Buscar Motivo</button>
                     
-                    <div style="margin-top: 1.5rem;">
-                        <h4>Resultados de la búsqueda:</h4>
-                        <ul style="margin-top: 1rem; padding-left: 1.5rem; color: var(--text-gray);">
-                            <li>Posición 124-129: ATGCTA</li>
-                            <li>Posición 458-463: ATGCTA</li>
-                            <li>Posición 892-897: ATGCTA</li>
-                            <li>Posición 1120-1125: ATGCTA</li>
-                        </ul>
-                    </div>
                 </div>
                 
-                <!-- Panel de salida completo -->
-                <div class="panel panel-full">
-                    <h3><i class="fas fa-file-code"></i> Salida Completa del Análisis</h3>
-                    <div style="background-color: rgba(0, 0, 0, 0.3); padding: 1rem; border-radius: 8px; margin-top: 1rem; max-height: 300px; overflow-y: auto;">
-                        <pre style="color: var(--text-gray); font-family: monospace; line-height: 1.4;" id="full-analysis-output">
-GenomicsFreedom Analysis Report
-==============================
-
-{% for seq in sequences %}
-Sequence: {{ seq.title }}
-Length: {{ seq.length }} bp
-GC Content: {{ seq.gc|round(2) }}%
-Base Composition:
-  A: {{ seq.bases['A'] }} ({{ (seq.bases['A'] / seq.length * 100)|round(2) }}%)
-  T: {{ seq.bases['T'] }} ({{ (seq.bases['T'] / seq.length * 100)|round(2) }}%)
-  C: {{ seq.bases['C'] }} ({{ (seq.bases['C'] / seq.length * 100)|round(2) }}%)
-  G: {{ seq.bases['G'] }} ({{ (seq.bases['G'] / seq.length * 100)|round(2) }}%)
-  N: {{ seq.bases.get('N', 0) }} ({{ (seq.bases.get('N', 0) / seq.length * 100)|round(2) }}%)
-
-{% endfor %}
-Global Statistics:
-  Total Sequences: {{ global_stats.total_sequences }}
-  Total Bases: {{ global_stats.total_bases }}
-  Average GC Content: {{ global_stats.avg_gc|round(2) }}%
-  Base Distribution:
-    A: {{ global_stats.base_percentages['A']|round(2) }}%
-    T: {{ global_stats.base_percentages['T']|round(2) }}%
-    C: {{ global_stats.base_percentages['C']|round(2) }}%
-    G: {{ global_stats.base_percentages['G']|round(2) }}%
-    N: {{ global_stats.base_percentages.get('N', 0)|round(2) }}%
-                        </pre>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
 
     <script src="{{ url_for('static', filename='js/results.js') }}"></script>
     <div id="sequences-data" style="display:none;" 
-     data-sequences="{{ sequences|tojson|forceescape }}"></div>
+    data-sequences="{{ sequences|tojson|forceescape }}"></div>
+    <div id="distance-data" style="display:none;" 
+    data-distances="{{ distance_matrix|tojson|forceescape if distance_matrix else '{}' }}"></div>
 </body>
 </html>

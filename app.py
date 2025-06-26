@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from Bio import SeqIO
 from Bio.SeqUtils import gc_fraction
 from io import StringIO
@@ -11,8 +11,20 @@ import numpy as np
 import base64
 from io import BytesIO
 from collections import Counter
+import os
+import subprocess
+from Bio import AlignIO, Phylo
+from Bio.Phylo.TreeConstruction import DistanceCalculator, DistanceTreeConstructor
+from Bio.Align import MultipleSeqAlignment
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
 
 app = Flask(__name__)
+
+UPLOAD_FOLDER = 'uploads'
+MUSCLE_PATH = os.path.join('bin', 'muscle.exe')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs('static', exist_ok=True)
 
 @app.route('/')
 def index():
@@ -67,12 +79,22 @@ def analyze():
         'avg_gc': np.mean([s['gc'] for s in sequences]),
         'base_percentages': calculate_base_percentages(sequences)
     }
+
+    # Generar árbol filogenético y obtener distancias reales
+    phylo_tree_img = None
+    distance_matrix = None
+    if len(sequences) > 1:  # Solo si hay más de una secuencia
+        print(f"Generando árbol filogenético para {len(sequences)} secuencias...")
+        phylo_tree_img, distance_matrix = generate_phylogenetic_tree_with_distances(sequences)
+        print(f"Resultado: tree_img={'Generado' if phylo_tree_img else 'None'}, distances={'Generadas' if distance_matrix else 'None'}")
     
     # Renderizar la página de resultados con los datos
-    return render_template('results.html', 
-                           sequences=sequences, 
+    return render_template('results.html',
+                           sequences=sequences,
                            global_stats=global_stats,
-                           histogram_img=histogram_img)
+                           histogram_img=histogram_img,
+                           phylo_tree_img=phylo_tree_img,
+                           distance_matrix=distance_matrix)
 
 def calculate_base_percentages(sequences):
     """Calcula el porcentaje de cada base en todas las secuencias"""
@@ -85,7 +107,6 @@ def calculate_base_percentages(sequences):
     
     return {base: (count / total_bases) * 100 for base, count in base_counts.items()}
 
-# Cambiar la función generate_histogram
 def generate_histogram(lengths):
     """Genera un histograma de longitudes de secuencia con Seaborn"""
     import matplotlib.pyplot as plt
@@ -181,5 +202,205 @@ def generate_histogram(lengths):
     # Convertir a base64 para incrustar en HTML
     img_data = base64.b64encode(buffer.getvalue()).decode('utf-8')
     return f"data:image/png;base64,{img_data}"
+
+def generate_phylogenetic_tree_with_distances(sequences):
+    """Genera un árbol filogenético y devuelve tanto la imagen como la matriz de distancias"""
+    try:
+        print("Iniciando generación de árbol filogenético...")
+        
+        # Validar que MUSCLE existe
+        if not os.path.exists(MUSCLE_PATH):
+            print(f"ERROR: MUSCLE no encontrado en {MUSCLE_PATH}")
+            return generate_simple_phylogenetic_tree(sequences)
+        
+        # Crear archivo FASTA temporal
+        input_file = os.path.join(UPLOAD_FOLDER, 'temp_input.fasta')
+        aligned_file = os.path.join(UPLOAD_FOLDER, 'temp_aligned.fasta')
+        
+        print("Escribiendo secuencias en archivo temporal...")
+        # Escribir secuencias en formato FASTA
+        with open(input_file, 'w') as f:
+            for i, seq_data in enumerate(sequences):
+                # Limpiar título para evitar problemas
+                clean_title = seq_data['title'].replace(' ', '_').replace('|', '_')
+                f.write(f">{clean_title}\n{seq_data['sequence']}\n")
+        
+        print(f"Ejecutando MUSCLE: {MUSCLE_PATH}")
+        # Ejecutar MUSCLE con comando más robusto
+        muscle_cline = f'"{MUSCLE_PATH}" -align "{input_file}" -output "{aligned_file}"'
+        result = subprocess.run(muscle_cline, shell=True, capture_output=True, text=True, timeout=60)
+        
+        print(f"MUSCLE return code: {result.returncode}")
+        if result.stderr:
+            print(f"MUSCLE stderr: {result.stderr}")
+        if result.stdout:
+            print(f"MUSCLE stdout: {result.stdout}")
+        
+        if result.returncode != 0 or not os.path.exists(aligned_file):
+            print("MUSCLE falló, usando método alternativo...")
+            return generate_simple_phylogenetic_tree(sequences)
+        
+        print("Leyendo alineamiento...")
+        # Leer alineamiento
+        try:
+            alignment = AlignIO.read(aligned_file, 'fasta')
+            print(f"Alineamiento leído: {len(alignment)} secuencias")
+        except Exception as e:
+            print(f"Error leyendo alineamiento: {e}")
+            return generate_simple_phylogenetic_tree(sequences)
+        
+        # Calcular distancias y árbol
+        print("Calculando distancias...")
+        calculator = DistanceCalculator('identity')
+        dm = calculator.get_distance(alignment)
+        constructor = DistanceTreeConstructor()
+        tree = constructor.nj(dm)
+        
+        # Convertir matriz de distancias a formato utilizable
+        seq_names = [seq['title'] for seq in sequences]
+        distance_dict = {}
+        
+        for i, name1 in enumerate(seq_names):
+            for j, name2 in enumerate(seq_names):
+                if i < j:  # Solo calcular distancias únicas (triangular superior)
+                    distance = dm[i, j]
+                    distance_dict[f"{name1}|{name2}"] = round(distance, 4)
+        
+        print("Generando imagen del árbol...")
+        # Generar imagen del árbol
+        plt.figure(figsize=(10, 6), facecolor='none')
+        plt.style.use('dark_background')
+        Phylo.draw(tree, do_show=False)
+        plt.title('Árbol Filogenético', color='white', fontsize=14)
+        
+        # Guardar como base64
+        buffer = BytesIO()
+        plt.savefig(buffer, format='png', bbox_inches='tight', dpi=100, transparent=True)
+        plt.close()
+        
+        # Limpiar archivos temporales
+        try:
+            if os.path.exists(input_file):
+                os.remove(input_file)
+            if os.path.exists(aligned_file):
+                os.remove(aligned_file)
+        except:
+            pass
+        
+        img_data = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        tree_img = f"data:image/png;base64,{img_data}"
+        
+        print("Árbol filogenético generado exitosamente!")
+        return tree_img, distance_dict
+        
+    except Exception as e:
+        print(f"Error generando árbol filogenético: {e}")
+        import traceback
+        traceback.print_exc()
+        return generate_simple_phylogenetic_tree(sequences)
+
+def generate_simple_phylogenetic_tree(sequences):
+    """Genera un árbol filogenético simple sin MUSCLE usando distancias de Hamming"""
+    try:
+        print("Generando árbol filogenético simple...")
+        
+        # Calcular distancias de Hamming simples
+        distance_dict = {}
+        seq_names = [seq['title'] for seq in sequences]
+        
+        # Crear matriz de distancias manualmente
+        distance_matrix = []
+        for i, seq1 in enumerate(sequences):
+            row = []
+            for j, seq2 in enumerate(sequences):
+                if i == j:
+                    distance = 0.0
+                else:
+                    # Calcular distancia de Hamming simple
+                    s1, s2 = seq1['sequence'], seq2['sequence']
+                    min_len = min(len(s1), len(s2))
+                    max_len = max(len(s1), len(s2))
+                    
+                    if min_len == 0:
+                        distance = 1.0
+                    else:
+                        differences = sum(1 for k in range(min_len) if s1[k] != s2[k])
+                        differences += abs(len(s1) - len(s2))  # Penalizar diferencias de longitud
+                        distance = differences / max_len
+                
+                row.append(distance)
+                
+                # Guardar en diccionario para JavaScript
+                if i < j:
+                    distance_dict[f"{seq1['title']}|{seq2['title']}"] = round(distance, 4)
+            
+            distance_matrix.append(row)
+        
+        # Crear alineamiento simple (sin alinear realmente)
+        from Bio.Align import MultipleSeqAlignment
+        from Bio.SeqRecord import SeqRecord
+        from Bio.Seq import Seq
+        
+        # Crear records para BioPython
+        records = []
+        max_length = max(len(seq['sequence']) for seq in sequences)
+        
+        for seq in sequences:
+            # Pad sequences to same length
+            padded_seq = seq['sequence'].ljust(max_length, '-')
+            clean_title = seq['title'].replace(' ', '_').replace('|', '_')
+            record = SeqRecord(Seq(padded_seq), id=clean_title)
+            records.append(record)
+        
+        alignment = MultipleSeqAlignment(records)
+        
+        # Usar BioPython para crear el árbol
+        calculator = DistanceCalculator('identity')
+        dm = calculator.get_distance(alignment)
+        constructor = DistanceTreeConstructor()
+        tree = constructor.nj(dm)
+        
+        # Generar imagen del árbol
+        plt.figure(figsize=(10, 6), facecolor='none')
+        plt.style.use('dark_background')
+        Phylo.draw(tree, do_show=False)
+        plt.title('Árbol Filogenético (Distancias Simples)', color='white', fontsize=14)
+        
+        # Guardar como base64
+        buffer = BytesIO()
+        plt.savefig(buffer, format='png', bbox_inches='tight', dpi=100, transparent=True)
+        plt.close()
+        
+        img_data = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        tree_img = f"data:image/png;base64,{img_data}"
+        
+        print("Árbol filogenético simple generado exitosamente!")
+        return tree_img, distance_dict
+        
+    except Exception as e:
+        print(f"Error en árbol filogenético simple: {e}")
+        import traceback
+        traceback.print_exc()
+        return None, None
+
+# Nueva ruta para obtener distancia específica
+@app.route('/get_distance', methods=['POST'])
+def get_distance():
+    data = request.get_json()
+    seq1 = data.get('seq1')
+    seq2 = data.get('seq2')
+    distance_matrix = data.get('distance_matrix', {})
+    
+    # Buscar la distancia en ambas direcciones
+    key1 = f"{seq1}|{seq2}"
+    key2 = f"{seq2}|{seq1}"
+    
+    distance = distance_matrix.get(key1) or distance_matrix.get(key2)
+    
+    if distance is not None:
+        return jsonify({'distance': distance})
+    else:
+        return jsonify({'distance': 0.0})  # Misma secuencia
+    
 if __name__ == '__main__':
     app.run(debug=True)
