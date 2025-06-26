@@ -1,6 +1,6 @@
 body {
   font-family: Arial, sans-serif;
-  background-color: #c5f2f7;
+  /* background-color: #c5f2f7;*/
 }
 
 .container {
@@ -10,12 +10,37 @@ body {
   text-align: center;
 }
 
+#interactive-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    overflow: hidden;
+}
+.dna-particle {
+    position: absolute;
+    background: rgba(230, 57, 70, 0.2);
+    border-radius: 50%;
+    pointer-events: none;
+}
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
 .titulo {
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 30px;
+  color: white;
 }
 
+/* Antes del cambio */
+/*
 .tabla-container {
   background-color: #d8faff;
   border: 4px solid #54c5d1;
@@ -34,10 +59,30 @@ th, td {
   border: 1px solid #54c5d1;
   padding: 10px;
 }
+*/
 
+/* Despues del cambio */
+.tabla-container {
+    background-color: rgba(90, 86, 108, 0.4);
+    border: none; /* o ajusta el color del borde si quieres */
+    color: #ffffff;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: transparent;
+  color: #ffffff;
+}
 th {
-  background-color: #54c5d1;
-  color: white;
+  background-color: #1a1a2e;
+  color: #ffffff;
+}
+td {
+  color: #ffffff;
+}
+
+.titulo, th, td {
+    color: #ffffff;
 }
 
 img {
@@ -51,7 +96,7 @@ img {
 
 .btn-volver {
   padding: 10px 25px;
-  background-color: #007bff;
+  background-color: #1a1a2e;
   color: white;
   text-decoration: none;
   border-radius: 25px;
@@ -60,6 +105,7 @@ img {
 }
 
 .btn-volver:hover {
-  background-color: #0056b3;
+  background-color: #b11616;
+  color: #000;
   transform: scale(1.05);
 }
