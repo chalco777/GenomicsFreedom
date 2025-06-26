@@ -1,0 +1,155 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #c5f2f7;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  padding: 20px;
+  max-width: 1100px;
+  margin: auto;
+}
+
+.titulo {
+  text-align: center;
+  font-size: 26px;
+  font-weight: bold;
+  background-color: #55d1e4;
+  color: #000;
+  padding: 15px;
+  border-radius: 20px;
+  margin-bottom: 30px;
+}
+
+.panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr;
+  gap: 20px;
+  background-color: #b4eaf2;
+  border-radius: 30px;
+  padding: 20px;
+  align-items: center;
+}
+
+.panel-izquierdo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.imagen-adn {
+  width: 100%;
+  max-width: 130px;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.panel-central {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+}
+
+.circulo {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  font-size: 18px;
+  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: default;
+}
+
+.circulo:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.gc {
+  background: linear-gradient(135deg, #6ed3e6, #3ab4cb);
+  color: black;
+}
+
+.at {
+  background: linear-gradient(135deg, #f9a66d, #f2856d);
+  color: black;
+}
+
+.etiqueta {
+  font-size: 14px;
+}
+
+.panel-derecho {
+  text-align: center;
+}
+
+.panel-derecho h4 {
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+#graficoAmbiguas {
+  background-color: #e7e7e7;
+  padding: 10px;
+  border-radius: 15px;
+}
+
+.selector {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.selector select {
+  padding: 6px 12px;
+  margin: 0 10px;
+  border-radius: 10px;
+  border: 1px solid #aaa;
+}
+
+/* Responsivo */
+@media screen and (max-width: 768px) {
+  .panel {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .panel-central {
+    flex-direction: row;
+    justify-content: space-evenly;
+    gap: 20px;
+  }
+
+  .panel-derecho {
+    margin-top: 20px;
+  }
+}
+.volver {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.btn-volver {
+  padding: 10px 25px;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 25px;
+  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-volver:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
