@@ -218,26 +218,61 @@ def generate_phylogenetic_tree_with_distances(sequences):
         aligned_file = os.path.join(UPLOAD_FOLDER, 'temp_aligned.fasta')
         
         print("Escribiendo secuencias en archivo temporal...")
+        # Validar y limpiar secuencias antes de escribir
+        valid_sequences = []
+        for i, seq_data in enumerate(sequences):
+            sequence = seq_data['sequence'].upper().strip()
+            title = seq_data['title'].strip()
+            
+            # Validar que la secuencia no esté vacía
+            if not sequence:
+                print(f"ADVERTENCIA: Secuencia '{title}' está vacía, omitiendo...")
+                continue
+                
+            # Limpiar título para evitar problemas con MUSCLE
+            clean_title = title.replace(' ', '_').replace('|', '_').replace(':', '_').replace(';', '_')
+            if not clean_title:
+                clean_title = f"Seq_{i+1}"
+                
+            valid_sequences.append({'title': clean_title, 'sequence': sequence})
+        
+        if len(valid_sequences) < 2:
+            print("ERROR: Se necesitan al menos 2 secuencias válidas")
+            return generate_simple_phylogenetic_tree(sequences)
+        
         # Escribir secuencias en formato FASTA
         with open(input_file, 'w') as f:
-            for i, seq_data in enumerate(sequences):
-                # Limpiar título para evitar problemas
-                clean_title = seq_data['title'].replace(' ', '_').replace('|', '_')
-                f.write(f">{clean_title}\n{seq_data['sequence']}\n")
+            for seq_data in valid_sequences:
+                f.write(f">{seq_data['title']}\n{seq_data['sequence']}\n")
+                
+        print(f"Archivo FASTA creado con {len(valid_sequences)} secuencias válidas")
         
         print(f"Ejecutando MUSCLE: {MUSCLE_PATH}")
-        # Ejecutar MUSCLE con comando más robusto
+        # MUSCLE 5.3 usa sintaxis: -align input -output output
         muscle_cline = f'"{MUSCLE_PATH}" -align "{input_file}" -output "{aligned_file}"'
-        result = subprocess.run(muscle_cline, shell=True, capture_output=True, text=True, timeout=60)
+        print(f"Comando completo: {muscle_cline}")
+        
+        result = subprocess.run(muscle_cline, shell=True, capture_output=True, text=True, timeout=120)
         
         print(f"MUSCLE return code: {result.returncode}")
         if result.stderr:
             print(f"MUSCLE stderr: {result.stderr}")
         if result.stdout:
             print(f"MUSCLE stdout: {result.stdout}")
+            
+        # Verificar si el archivo de salida se creó y tiene contenido
+        if os.path.exists(aligned_file):
+            file_size = os.path.getsize(aligned_file)
+            print(f"Archivo alineado creado: {aligned_file} ({file_size} bytes)")
+            if file_size == 0:
+                print("ADVERTENCIA: El archivo alineado está vacío")
+                return generate_simple_phylogenetic_tree(sequences)
+        else:
+            print(f"ERROR: No se creó el archivo alineado: {aligned_file}")
+            return generate_simple_phylogenetic_tree(sequences)
         
-        if result.returncode != 0 or not os.path.exists(aligned_file):
-            print("MUSCLE falló, usando método alternativo...")
+        if result.returncode != 0:
+            print("MUSCLE terminó con error, usando método alternativo...")
             return generate_simple_phylogenetic_tree(sequences)
         
         print("Leyendo alineamiento...")
@@ -267,15 +302,46 @@ def generate_phylogenetic_tree_with_distances(sequences):
                     distance_dict[f"{name1}|{name2}"] = round(distance, 4)
         
         print("Generando imagen del árbol...")
-        # Generar imagen del árbol
-        plt.figure(figsize=(10, 6), facecolor='none')
-        plt.style.use('dark_background')
-        Phylo.draw(tree, do_show=False)
-        plt.title('Árbol Filogenético', color='white', fontsize=14)
+        # Generar imagen del árbol con fondo temático
+        fig, ax = plt.subplots(figsize=(10, 6))
+        
+        # Crear un fondo degradado que combine con el tema de la página
+        # Usando los colores de tu tema: tonos oscuros con acentos rojos/verdes
+        from matplotlib.colors import LinearSegmentedColormap
+        
+        # Definir colores del degradado (de tu tema CSS)
+        colors = ['#1a1a1a', '#2a2a2a', '#1e1e1e']  # Tonos oscuros
+        n_bins = 100
+        cmap = LinearSegmentedColormap.from_list('custom', colors, N=n_bins)
+        
+        # Crear fondo degradado
+        gradient = np.linspace(0, 1, 256).reshape(1, -1)
+        gradient = np.vstack((gradient, gradient))
+        ax.imshow(gradient, aspect='auto', cmap=cmap, alpha=0.8,
+                 extent=[ax.get_xlim()[0], ax.get_xlim()[1], 
+                        ax.get_ylim()[0], ax.get_ylim()[1]])
+        
+        # Dibujar el árbol (manteniendo colores por defecto)
+        Phylo.draw(tree, do_show=False, axes=ax)
+        
+        # Personalizar el título
+        plt.title('Árbol Filogenético', color='white', fontsize=16, 
+                 fontweight='bold', pad=20)
+        
+        # Hacer los ejes transparentes pero mantener el fondo
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['bottom'].set_visible(False)
+        ax.spines['left'].set_visible(False)
+        ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
+        
+        # Ajustar márgenes
+        plt.tight_layout()
         
         # Guardar como base64
         buffer = BytesIO()
-        plt.savefig(buffer, format='png', bbox_inches='tight', dpi=100, transparent=True)
+        plt.savefig(buffer, format='png', bbox_inches='tight', dpi=100, 
+                   facecolor='#1a1a1a', edgecolor='none')
         plt.close()
         
         # Limpiar archivos temporales
@@ -363,8 +429,38 @@ def generate_simple_phylogenetic_tree(sequences):
         # Generar imagen del árbol
         plt.figure(figsize=(10, 6), facecolor='none')
         plt.style.use('dark_background')
-        Phylo.draw(tree, do_show=False)
-        plt.title('Árbol Filogenético (Distancias Simples)', color='white', fontsize=14)
+        
+        # Configurar colores para que todo sea blanco
+        plt.rcParams.update({
+            'axes.edgecolor': 'white',
+            'axes.labelcolor': 'white', 
+            'xtick.color': 'white',
+            'ytick.color': 'white',
+            'text.color': 'white',
+            'lines.color': 'white',
+            'patch.edgecolor': 'white'
+        })
+        
+        # Dibujar árbol
+        ax = plt.gca()
+        Phylo.draw(tree, do_show=False, axes=ax)
+        
+        # Forzar que todas las líneas sean blancas
+        for line in ax.lines:
+            line.set_color('white')
+            line.set_linewidth(2)
+        
+        # Forzar que todo el texto sea blanco
+        for text in ax.texts:
+            text.set_color('white')
+            text.set_fontsize(10)
+        
+        plt.title('Árbol Filogenético (Distancias Simples)', color='white', fontsize=14, pad=20)
+        
+        # Hacer el fondo transparente
+        ax.set_facecolor('none')
+        for spine in ax.spines.values():
+            spine.set_visible(False)
         
         # Guardar como base64
         buffer = BytesIO()
