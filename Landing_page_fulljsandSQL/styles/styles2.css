@@ -2,7 +2,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: Arial, sans-serif;
-  background-color: #d8f8f8;
+  /* background-color: #d8f8f8;*/
   display: flex;
   justify-content: center;
   align-items: center;
@@ -14,15 +14,36 @@ body {
   width: 90%;
   max-width: 1200px;
   height: 80vh;
-  background-color: #e6fcfc;
+  background-color: rgba(90, 86, 108, 0.4); 
   border-radius: 25px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
+#interactive-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    overflow: hidden;
+}
+.dna-particle {
+    position: absolute;
+    background: rgba(230, 57, 70, 0.2);
+    border-radius: 50%;
+    pointer-events: none;
+}
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
 
 .sidebar {
   width: 30%;
-  background-color: #dffbfb;
+  background-color: rgba(90, 86, 108, 0.4);
   padding: 40px 20px;
   display: flex;
   flex-direction: column;
@@ -35,8 +56,8 @@ body {
 .sidebar button {
   width: 90%;
   padding: 15px;
-  background-color: #4ee0e0;
-  color: black;
+  background-color: #1a1a2e;
+  color: white;
   font-weight: bold;
   border: none;
   border-radius: 25px;
@@ -45,7 +66,8 @@ body {
 }
 
 .sidebar button:hover {
-  background-color: #36cfcf;
+  background-color: #b11616;
+  color: #000;
 }
 
 .content {
@@ -58,12 +80,13 @@ body {
 
 .form-container {
   width: 80%;
-  background-color: #b6f5ff;
+  background-color: #1a1a2e;
   padding: 30px;
   border-radius: 25px;
   display: flex;
   flex-direction: column;
   gap: 15px;
+  color: white;
 }
 
 .form-container input[type="text"] {
@@ -71,18 +94,20 @@ body {
   border-radius: 10px;
   border: 2px solid #ccc;
   font-size: 16px;
+  background-color: rgba(90, 86, 108, 0.4);
 }
 
 .form-container button {
   padding: 10px;
-  background-color: #4ee0e0;
-  border: none;
+  background-color: #323249;;
+  border: white;
   border-radius: 20px;
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s;
+  color: white;
 }
 
 .form-container button:hover {
-  background-color: #36cfcf;
+    background-color: #631919;
 }
