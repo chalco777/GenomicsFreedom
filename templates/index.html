@@ -4,21 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GenomicsFreedom - Exploración Genómica Creativa</title>
+    
+    # <!--Hoja de estilos local: Flask la busca en /static/css/styles.css -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Fondo interactivo con partículas -->
+    <!-- Fondo interactivo con partículas rellenado por js  -->
     <div id="interactive-bg"></div>
 
-    <!-- Cabecera con título -->
+    <!-- Cabecera inicial, titulo -->
     <header>
         <h1 class="logo">GenomicsFreedom</h1>
         <p class="tagline">Exploración libre de patrones genómicos más allá de las reglas convencionales</p>
     </header>
 
-    <!-- Sección "About Us" -->
+    <!-- Sección "About Us", <section> para dividir tu documento en bloques temáticos bien definidos -->
     <section id="about">
+    <!-- Header usa icono de ADN-->
         <h2><i class="fas fa-dna"></i> About Us</h2>
         <div class="about-content">
             <p>Bienvenido a <span class="highlight">GenomicsFreedom</span>, una plataforma innovadora diseñada para la enseñanza de genómica y la exploración creativa de secuencias genéticas.</p>
@@ -34,7 +37,7 @@
     <!-- Sección de entrada de secuencias -->
     <section id="sequence-input">
         <h2><i class="fas fa-code"></i> Ingresar Secuencias</h2>
-        
+        <!--    ENVIAlo a la ruta /analyze, enctype le indica que empaquete los campos de texto y el file en distitnas partes dentro de la petición-->
         <form action="/analyze" method="POST" enctype="multipart/form-data">
             <div class="sequence-input-container">
                 <!-- Entrada manual -->

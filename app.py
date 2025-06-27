@@ -1,5 +1,12 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
-from Bio import SeqIO
+#render_template para combinar HTML con datos de Python
+#request para manejar solicitudes HTTP, acceder a kson del cuerpo, manjear metodos GET POST, ver paramertros de la url
+# redirect para redirigir a otra ruta
+#url_for para generar URLs para las rutas de la aplicación
+#jsonify para convertir datos de Python a JSON y enviarlos como respuesta HTTP
+
+
+from Bio import SeqIO #leer secuencias
 from Bio.SeqUtils import gc_fraction
 from io import StringIO
 import json
@@ -19,24 +26,31 @@ from Bio.Align import MultipleSeqAlignment
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
+#Creo instancia que gestiona archivos y rutas, gestiona en sí la aplicacion web
 app = Flask(__name__)
 
 UPLOAD_FOLDER = 'uploads'
 # Usar ruta relativa al archivo app.py
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MUSCLE_PATH = os.path.join(BASE_DIR, 'bin', 'muscle.exe')
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs('static', exist_ok=True)
+#crea carpetas si no existen
+os.makedirs(UPLOAD_FOLDER, exist_ok=True) #para archivos
+os.makedirs('static', exist_ok=True) # para css,jss, imagens
 
+#Cuando el usuario visite la URL raíz /, ejecuta la función que muestra el html index
+#el navegaor pide, solicitud get, algo que mostrar, y el servidor responde con el contenido del index.html
 @app.route('/')
 def index():
     return render_template('index.html')
+#cargo el index html y lo muestra en el navegador
 
+
+#navegador envia, solitiud post, datos al servidor flask, que responde ejecutando analyz
 @app.route('/analyze', methods=['POST'])
 def analyze():
     sequences = []
-    
-    # Procesar secuencias manuales
+    #request busca en el cuerpo de la solicitud post los datos enviados por el usuario
+    #leen, del formulario HTML, todas las entradas cuyos name sean exactamente manual_sequences[] y manual_titles[]
     manual_sequences = request.form.getlist('manual_sequences[]')
     manual_titles = request.form.getlist('manual_titles[]')
     

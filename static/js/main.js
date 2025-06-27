@@ -37,13 +37,18 @@ function setupFilePreview() {
     const fileContent = document.getElementById('file-content');
     
     if (fileInput && fileContent) {
+        //cuando el usuario elija algo se activa el evento change
         fileInput.addEventListener('change', function(e) {
+            //e es evento, target es el elemento que disparó el evento, files es una lista de archivos seleccionados
             const file = e.target.files[0];
             if (file) {
+                //FileReader es una API del navegador para leer archivos locales sin enviarlos al servidor.
                 const reader = new FileReader();
+                //evento de tipo load de file reader, se activa cuando el archivo ha sido leído completament
                 reader.onload = function(e) {
                     fileContent.value = e.target.result;
                 };
+                //llamo el inicio de la operacion lectura
                 reader.readAsText(file);
             }
         });
@@ -73,9 +78,9 @@ function addSequenceEntry() {
 
 // Inicializar eventos
 document.addEventListener('DOMContentLoaded', function() {
-    createInteractiveBackground();
+    createInteractiveBackground(); // dibuja las partículas
     setupFilePreview();
-    
+    // conecta FileReader
     // Botón para añadir secuencia
     const addSequenceBtn = document.getElementById('add-sequence');
     if (addSequenceBtn) {
@@ -83,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Al final de main.js
+// Al final de main.js, resplado extra gg
 if (document.getElementById('interactive-bg')) {
     createInteractiveBackground();
 }
