@@ -81,57 +81,6 @@
                     </div>
                 </div>
                 
-                <!-- Panel de estadísticas por secuencia -->
-                <div class="panel">
-                    <h3><i class="fas fa-list"></i> Estadísticas por Secuencia</h3>
-                    
-                    <!-- Selector de secuencia -->
-                    <div style="margin-bottom: 1.5rem;">
-                        <label for="sequence-stats-select" style="display: block; margin-bottom: 0.5rem; color: var(--text-gray);">
-                            Seleccionar secuencia para ver estadísticas:
-                        </label>
-                        <select id="sequence-stats-select" class="form-control" style="width: 100%; max-width: 400px;">
-                            {% for seq in sequences %}
-                            <option value="{{ loop.index0 }}">{{ seq.title }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    
-                    <!-- Contenedor para las estadísticas de la secuencia seleccionada -->
-                    <div id="sequence-stats-container">
-                        <!-- Las estadísticas se cargarán aquí dinámicamente -->
-                    </div>
-                    
-                    <!-- Resumen comparativo (siempre visible) -->
-                    <div style="margin-top: 2rem; padding: 1rem; background-color: rgba(42, 157, 143, 0.1); border-radius: 8px; border-left: 4px solid var(--accent-green);">
-                        <h4 style="color: var(--accent-green); margin-bottom: 1rem;">
-                            <i class="fas fa-chart-line"></i> Resumen Comparativo
-                        </h4>
-                        <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; text-align: center;">
-                            <div class="stat-card">
-                                <div class="stat-value">{{ sequences|length }}</div>
-                                <div class="stat-label">Total Secuencias</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value">{{ sequences|map(attribute='length')|min }}</div>
-                                <div class="stat-label">Longitud Mín.</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value">{{ sequences|map(attribute='length')|max }}</div>
-                                <div class="stat-label">Longitud Máx.</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value">{{ (sequences|map(attribute='gc')|min)|round(1) }}%</div>
-                                <div class="stat-label">GC Mín.</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value">{{ (sequences|map(attribute='gc')|max)|round(1) }}%</div>
-                                <div class="stat-label">GC Máx.</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
                 <!-- Panel de visualización -->
                 <div class="panel">
                     <h3><i class="fas fa-eye"></i> Visualización de Secuencia</h3>
@@ -164,89 +113,7 @@
             </div>
                 </div>
                 
-                <!-- Después del panel de visualización de secuencia -->
-                <div class="panel">
-                    <h3><i class="fas fa-align-left"></i> Alineamiento Múltiple</h3>
-                    
-                    <!-- Controles del alineamiento -->
-                    <div style="margin-bottom: 1.5rem;">
-                        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-bottom: 1rem;">
-                            <div>
-                                <label for="alignment-view-select" style="display: block; margin-bottom: 0.5rem; color: var(--text-gray);">
-                                    Vista del alineamiento:
-                                </label>
-                                <select id="alignment-view-select" class="form-control" style="width: 200px;">
-                                    <option value="preview">Vista previa (50 bp)</option>
-                                    <option value="full">Vista completa</option>
-                                    <option value="consensus">Secuencia consenso</option>
-                                </select>
-                            </div>
-                            
-                            <div>
-                                <label for="similarity-threshold" style="display: block; margin-bottom: 0.5rem; color: var(--text-gray);">
-                                    Umbral de similitud (%):
-                                </label>
-                                <input type="range" id="similarity-threshold" min="50" max="100" value="80" 
-                                    style="width: 150px;" class="form-control">
-                                <span id="threshold-value" style="color: var(--accent-green); font-weight: bold;">80%</span>
-                            </div>
-                            
-                            <div style="margin-top: 1.5rem;">
-                                <button id="generate-alignment-btn" class="btn btn-primary">
-                                    <i class="fas fa-magic"></i> Generar Alineamiento
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Contenedor del alineamiento -->
-                    <div id="alignment-container" style="background-color: rgba(30,30,30,0.5); padding: 15px; border-radius: 8px; min-height: 200px;">
-                        <div id="alignment-content" style="font-family: 'Courier New', monospace; font-size: 0.9rem; line-height: 1.6; overflow-x: auto;">
-                            <div style="display: flex; align-items: center; justify-content: center; height: 150px; color: var(--text-gray);">
-                                <div style="text-align: center;">
-                                    <i class="fas fa-align-left" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                                    <p>Haz clic en "Generar Alineamiento" para ver el alineamiento múltiple</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Matriz de similitud dinámica -->
-                    <div style="margin-top: 1.5rem;" id="similarity-matrix-container">
-                        <h4 style="color: var(--text-gray); margin-bottom: 1rem;">
-                            <i class="fas fa-table"></i> Matriz de Similitud
-                        </h4>
-                        <div id="similarity-matrix" style="background-color: rgba(30,30,30,0.3); padding: 1rem; border-radius: 8px;">
-                            <!-- La matriz se generará dinámicamente -->
-                        </div>
-                    </div>
-                    
-                    <!-- Estadísticas del alineamiento -->
-                    <div style="margin-top: 1.5rem; display: none;" id="alignment-stats">
-                        <h4 style="color: var(--text-gray); margin-bottom: 1rem;">
-                            <i class="fas fa-chart-bar"></i> Estadísticas del Alineamiento
-                        </h4>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
-                            <div class="alignment-stat-card">
-                                <div class="alignment-stat-value" id="alignment-length">-</div>
-                                <div class="alignment-stat-label">Longitud del Alineamiento</div>
-                            </div>
-                            <div class="alignment-stat-card">
-                                <div class="alignment-stat-value" id="conserved-positions">-</div>
-                                <div class="alignment-stat-label">Posiciones Conservadas</div>
-                            </div>
-                            <div class="alignment-stat-card">
-                                <div class="alignment-stat-value" id="similarity-score">-</div>
-                                <div class="alignment-stat-label">Similitud Promedio</div>
-                            </div>
-                            <div class="alignment-stat-card">
-                                <div class="alignment-stat-value" id="gaps-count">-</div>
-                                <div class="alignment-stat-label">Total de Gaps</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+                <!-- Panel de arbol filogenetico y calculadora de distancias -->
                 <div class="panel">
                     <h3><i class="fas fa-tree"></i> Árbol Filogenético</h3>
                     <div style="margin-top: 1rem; text-align: center;">
@@ -299,25 +166,15 @@
                         {% endif %}
                     </div>
                 </div>
-                <!-- Panel de búsqueda de motivos -->
-                <div class="panel">
-                    <h3><i class="fas fa-search"></i> Búsqueda de Motivos</h3>
-                    <div class="form-group">
-                        <label for="motif-input">Ingrese motivo a buscar</label>
-                        <input type="text" id="motif-input" placeholder="Ej: ATGCTA" value="ATGCTA">
-                    </div>
-                    <button class="btn btn-primary" style="width: 100%;">Buscar Motivo</button>
-                    
-                </div>
                 
             </div>
         </div>
     </div>
 
     <script src="{{ url_for('static', filename='js/results.js') }}"></script>
-    <div id="sequences-data" style="display:none;" 
+    <div id="sequences-data" style="display:none;"
     data-sequences="{{ sequences|tojson|forceescape }}"></div>
-    <div id="distance-data" style="display:none;" 
+    <div id="distance-data" style="display:none;"
     data-distances="{{ distance_matrix|tojson|forceescape if distance_matrix else '{}' }}"></div>
 </body>
 </html>
