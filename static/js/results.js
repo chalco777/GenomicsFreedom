@@ -1,34 +1,18 @@
-// results.js - Funcionalidades interactivas para la página de resultados
-
 document.addEventListener('DOMContentLoaded', function() {
     // Obtener datos de las secuencias y distancias
     const sequencesDataEl = document.getElementById('sequences-data');
     const distanceDataEl = document.getElementById('distance-data');
     
-    let sequences = [];
-    let distanceMatrix = {};
-    
-    if (sequencesDataEl) {
-        try {
-            sequences = JSON.parse(sequencesDataEl.dataset.sequences);
-        } catch (e) {
-            console.error('Error parsing sequences data:', e);
-        }
-    }
-    
-    if (distanceDataEl) {
-        try {
-            distanceMatrix = JSON.parse(distanceDataEl.dataset.distances);
-        } catch (e) {
-            console.error('Error parsing distance data:', e);
-        }
-    }
+    const sequences = JSON.parse(sequencesDataEl.dataset.sequences);
+    const distanceMatrix = JSON.parse(distanceDataEl.dataset.distances);
     
     // Inicializar funcionalidades
     initSequenceVisualization();
     initSequenceStatsSelector();
     initDistanceCalculator();
     initMultipleAlignment();
+    initExportFunctions();
+    initMotifSearch();
     
     function initMultipleAlignment() {
         const generateBtn = document.getElementById('generate-alignment-btn');
@@ -36,22 +20,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const thresholdSlider = document.getElementById('similarity-threshold');
         const thresholdValue = document.getElementById('threshold-value');
         
-        if (!generateBtn) return;
-        
         // Actualizar valor del threshold
-        if (thresholdSlider && thresholdValue) {
-            thresholdSlider.addEventListener('input', function() {
-                thresholdValue.textContent = this.value + '%';
-            });
-        }
+        thresholdSlider.addEventListener('input', function() {
+            thresholdValue.textContent = this.value + '%';
+        });
         
         // Generar alineamiento al hacer clic
         generateBtn.addEventListener('click', generateMultipleAlignment);
         
         // Cambiar vista del alineamiento
-        if (viewSelect) {
-            viewSelect.addEventListener('change', updateAlignmentView);
-        }
+        viewSelect.addEventListener('change', updateAlignmentView);
         
         // Generar matriz de similitud inicial
         generateSimilarityMatrix();
@@ -59,55 +37,32 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function generateMultipleAlignment() {
         const generateBtn = document.getElementById('generate-alignment-btn');
-        const alignmentContent = document.getElementById('alignment-content');
         const alignmentStats = document.getElementById('alignment-stats');
-        
-        if (!sequences.length) {
-            showNotification('No hay secuencias para alinear', 'error');
-            return;
-        }
-        
-        if (sequences.length < 2) {
-            showNotification('Se requieren al menos 2 secuencias para el alineamiento', 'warning');
-            return;
-        }
         
         // Mostrar estado de carga
         const originalHTML = generateBtn.innerHTML;
         generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
         generateBtn.disabled = true;
         
-        // Simular procesamiento (en una implementación real, esto llamaría al servidor)
+        // Simular procesamiento
         setTimeout(() => {
-            try {
-                const alignment = performSimpleAlignment();
-                displayAlignment(alignment);
-                updateAlignmentStats(alignment);
-                
-                // Mostrar estadísticas
-                if (alignmentStats) {
-                    alignmentStats.style.display = 'block';
-                }
-                
-                showNotification('Alineamiento múltiple generado exitosamente', 'success');
-            } catch (error) {
-                showNotification('Error generando el alineamiento: ' + error.message, 'error');
-            } finally {
-                generateBtn.innerHTML = originalHTML;
-                generateBtn.disabled = false;
-            }
+            const alignment = performSimpleAlignment();
+            displayAlignment(alignment);
+            updateAlignmentStats(alignment);
+            
+            alignmentStats.style.display = 'block';
+            showNotification('Alineamiento múltiple generado exitosamente', 'success');
+            
+            generateBtn.innerHTML = originalHTML;
+            generateBtn.disabled = false;
         }, 1500);
     }
     
     function performSimpleAlignment() {
-        // Implementación simple de alineamiento (para demostración)
-        // En una implementación real, esto usaría MUSCLE o similar
-        
         const maxLength = Math.max(...sequences.map(s => s.sequence.length));
         const alignedSequences = [];
         
         sequences.forEach(seq => {
-            // Padding simple - en la realidad sería más sofisticado
             const paddedSeq = seq.sequence.padEnd(maxLength, '-');
             alignedSequences.push({
                 title: seq.title,
@@ -126,8 +81,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function calculateConservedPositions(alignedSeqs) {
-        if (!alignedSeqs.length) return 0;
-        
         const length = alignedSeqs[0].sequence.length;
         let conserved = 0;
         
@@ -144,8 +97,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function calculateAverageSimilarity(alignedSeqs) {
-        if (alignedSeqs.length < 2) return 100;
-        
         let totalSimilarity = 0;
         let comparisons = 0;
         
@@ -160,12 +111,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        return comparisons > 0 ? (totalSimilarity / comparisons) : 0;
+        return totalSimilarity / comparisons;
     }
     
     function calculatePairwiseSimilarity(seq1, seq2) {
-        if (seq1.length !== seq2.length) return 0;
-        
         let matches = 0;
         let validPositions = 0;
         
@@ -178,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        return validPositions > 0 ? (matches / validPositions) * 100 : 0;
+        return (matches / validPositions) * 100;
     }
     
     function calculateTotalGaps(alignedSeqs) {
@@ -191,9 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const alignmentContent = document.getElementById('alignment-content');
         const viewSelect = document.getElementById('alignment-view-select');
         
-        if (!alignmentContent) return;
-        
-        const viewType = viewSelect ? viewSelect.value : 'preview';
+        const viewType = viewSelect.value;
         let html = '';
         
         switch (viewType) {
@@ -237,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function generateFullAlignment(alignment) {
-        const chunkSize = 80; // Mostrar en bloques de 80 caracteres
+        const chunkSize = 80;
         let html = '<div>';
         html += '<div style="color: var(--accent-green); font-weight: bold; margin-bottom: 1rem;">Alineamiento Completo:</div>';
         
@@ -255,7 +202,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 html += `</div>`;
             });
             
-            // Agregar regla de conservación para este bloque
             html += `<div style="margin-top: 0.8rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.5rem;">`;
             html += `<span style="color: var(--text-gray); width: 140px; display: inline-block; font-size: 0.9rem;">Conservación:</span>`;
             html += `<span style="letter-spacing: 1px;">${generateConservationLine(alignment, start, chunkSize)}</span>`;
@@ -268,28 +214,25 @@ document.addEventListener('DOMContentLoaded', function() {
         return html;
     }
 
-function generateConservationLine(alignment, start, chunkSize) {
-    let conservationLine = '';
-    const end = Math.min(start + chunkSize, alignment.length);
-    
-    for (let pos = start; pos < end; pos++) {
-        const bases = alignment.sequences.map(seq => seq.sequence[pos]);
-        const uniqueBases = new Set(bases.filter(base => base !== '-'));
+    function generateConservationLine(alignment, start, chunkSize) {
+        let conservationLine = '';
+        const end = Math.min(start + chunkSize, alignment.length);
         
-        if (uniqueBases.size === 1 && !uniqueBases.has('-')) {
-            // Posición completamente conservada
-            conservationLine += '<span style="color: var(--accent-green); font-weight: bold;">*</span>';
-        } else if (uniqueBases.size <= 2) {
-            // Posición parcialmente conservada
-            conservationLine += '<span style="color: #f1c40f;">:</span>';
-        } else {
-            // Posición variable
-            conservationLine += '<span style="color: var(--text-gray);">.</span>';
+        for (let pos = start; pos < end; pos++) {
+            const bases = alignment.sequences.map(seq => seq.sequence[pos]);
+            const uniqueBases = new Set(bases.filter(base => base !== '-'));
+            
+            if (uniqueBases.size === 1 && !uniqueBases.has('-')) {
+                conservationLine += '<span style="color: var(--accent-green); font-weight: bold;">*</span>';
+            } else if (uniqueBases.size <= 2) {
+                conservationLine += '<span style="color: #f1c40f;">:</span>';
+            } else {
+                conservationLine += '<span style="color: var(--text-gray);">.</span>';
+            }
         }
+        
+        return conservationLine;
     }
-    
-    return conservationLine;
-}
     
     function generateConsensusView(alignment) {
         const consensus = calculateConsensusSequence(alignment);
@@ -299,12 +242,10 @@ function generateConservationLine(alignment, start, chunkSize) {
         html += `<div style="background-color: rgba(42, 157, 143, 0.1); padding: 1rem; border-radius: 5px; margin-bottom: 1rem;">`;
         html += `<div style="color: var(--accent-green); font-weight: bold; margin-bottom: 0.5rem;">Consenso:</div>`;
         
-        // Formatear secuencia consenso con saltos de línea cada 80 caracteres
         const formattedConsensus = formatConsensusWithLineBreaks(consensus.sequence, 80);
         html += `<div style="letter-spacing: 2px; font-size: 1.1rem; word-break: break-all; white-space: pre-wrap; font-family: 'Courier New', monospace; line-height: 1.8;">${formattedConsensus}</div>`;
         html += `</div>`;
         
-        // Agregar información adicional sobre la conservación
         html += `<div style="margin-top: 1rem; background-color: rgba(30, 30, 30, 0.3); padding: 1rem; border-radius: 5px;">`;
         html += `<div style="color: var(--text-gray); margin-bottom: 0.5rem; font-weight: bold;">Estadísticas del Consenso:</div>`;
         
@@ -339,60 +280,57 @@ function generateConservationLine(alignment, start, chunkSize) {
         return html;
     }
 
-function formatConsensusWithLineBreaks(sequence, lineLength = 80) {
-    let formatted = '';
-    let position = 1;
-    
-    for (let i = 0; i < sequence.length; i += lineLength) {
-        const chunk = sequence.substring(i, i + lineLength);
+    function formatConsensusWithLineBreaks(sequence, lineLength = 80) {
+        let formatted = '';
+        let position = 1;
         
-        // Agregar número de posición al inicio de cada línea
-        const positionLabel = `${String(position).padStart(6, ' ')}: `;
-        
-        // Formatear chunk con colores
-        const formattedChunk = chunk.split('').map(base => {
-            if (base === '-') {
-                return `<span style="color: var(--text-gray);">-</span>`;
-            } else {
-                const color = getBaseColor(base);
-                return `<span style="color: ${color}; font-weight: bold;">${base}</span>`;
+        for (let i = 0; i < sequence.length; i += lineLength) {
+            const chunk = sequence.substring(i, i + lineLength);
+            
+            const positionLabel = `${String(position).padStart(6, ' ')}: `;
+            
+            const formattedChunk = chunk.split('').map(base => {
+                if (base === '-') {
+                    return `<span style="color: var(--text-gray);">-</span>`;
+                } else {
+                    const color = getBaseColor(base);
+                    return `<span style="color: ${color}; font-weight: bold;">${base}</span>`;
+                }
+            }).join('');
+            
+            formatted += `<span style="color: #95a5a6; font-weight: normal;">${positionLabel}</span>${formattedChunk}`;
+            
+            if (i + lineLength < sequence.length) {
+                formatted += '\n';
             }
-        }).join('');
-        
-        formatted += `<span style="color: #95a5a6; font-weight: normal;">${positionLabel}</span>${formattedChunk}`;
-        
-        // Agregar salto de línea excepto en la última línea
-        if (i + lineLength < sequence.length) {
-            formatted += '\n';
+            
+            position += lineLength;
         }
         
-        position += lineLength;
+        return formatted;
     }
-    
-    return formatted;
-}
 
-function calculateConsensusStats(consensus) {
-    let fullyConserved = 0;
-    let partiallyConserved = 0;
-    let variable = 0;
-    
-    consensus.conservation.forEach(conservation => {
-        if (conservation === 1.0) {
-            fullyConserved++;
-        } else if (conservation > 0.5) {
-            partiallyConserved++;
-        } else {
-            variable++;
-        }
-    });
-    
-    return {
-        fullyConserved,
-        partiallyConserved,
-        variable
-    };
-}
+    function calculateConsensusStats(consensus) {
+        let fullyConserved = 0;
+        let partiallyConserved = 0;
+        let variable = 0;
+        
+        consensus.conservation.forEach(conservation => {
+            if (conservation === 1.0) {
+                fullyConserved++;
+            } else if (conservation > 0.5) {
+                partiallyConserved++;
+            } else {
+                variable++;
+            }
+        });
+        
+        return {
+            fullyConserved,
+            partiallyConserved,
+            variable
+        };
+    }
     
     function calculateConsensusSequence(alignment) {
         const length = alignment.length;
@@ -438,17 +376,6 @@ function calculateConsensusStats(consensus) {
         }).join('');
     }
     
-    function formatConsensusSequence(sequence) {
-        return sequence.split('').map((base, index) => {
-            if (base === '-') {
-                return `<span style="color: var(--text-gray);">-</span>`;
-            } else {
-                const color = getBaseColor(base);
-                return `<span style="color: ${color}; font-weight: bold;">${base}</span>`;
-            }
-        }).join('');
-    }
-    
     function getBaseColor(base) {
         const colors = {
             'A': '#e74c3c',
@@ -461,10 +388,8 @@ function calculateConsensusStats(consensus) {
     }
     
     function updateAlignmentView() {
-        // Si ya hay un alineamiento generado, actualizar la vista
         const alignmentContent = document.getElementById('alignment-content');
         if (alignmentContent && alignmentContent.innerHTML && !alignmentContent.innerHTML.includes('Haz clic')) {
-            // Re-generar con la nueva vista
             generateMultipleAlignment();
         }
     }
@@ -478,29 +403,19 @@ function calculateConsensusStats(consensus) {
     
     function generateSimilarityMatrix() {
         const matrixContainer = document.getElementById('similarity-matrix');
-        if (!matrixContainer || !sequences.length) return;
-        
-        if (sequences.length < 2) {
-            matrixContainer.innerHTML = '<p style="color: var(--text-gray); text-align: center;">Se requieren al menos 2 secuencias para generar la matriz</p>';
-            return;
-        }
         
         let html = '<div class="dynamic-matrix-grid" style="display: grid; gap: 1px; background-color: rgba(255, 255, 255, 0.1); border-radius: 5px; overflow: hidden;">';
         
-        // Calcular el número de columnas (secuencias + 1 para header)
         const gridCols = sequences.length + 1;
         html = html.replace('display: grid;', `display: grid; grid-template-columns: repeat(${gridCols}, 1fr);`);
         
-        // Header vacío
         html += '<div class="matrix-cell matrix-header">Secuencia</div>';
         
-        // Headers de columnas
         sequences.forEach(seq => {
             const shortTitle = seq.title.length > 10 ? seq.title.substring(0, 10) + '...' : seq.title;
             html += `<div class="matrix-cell matrix-header" title="${seq.title}">${shortTitle}</div>`;
         });
         
-        // Filas de datos
         sequences.forEach((seq1, i) => {
             const shortTitle1 = seq1.title.length > 10 ? seq1.title.substring(0, 10) + '...' : seq1.title;
             html += `<div class="matrix-cell matrix-header" title="${seq1.title}">${shortTitle1}</div>`;
@@ -522,9 +437,8 @@ function calculateConsensusStats(consensus) {
     
     function calculateSequenceSimilarity(seq1, seq2) {
         const minLength = Math.min(seq1.length, seq2.length);
-        if (minLength === 0) return 0;
-        
         let matches = 0;
+        
         for (let i = 0; i < minLength; i++) {
             if (seq1[i].toUpperCase() === seq2[i].toUpperCase()) {
                 matches++;
@@ -535,43 +449,31 @@ function calculateConsensusStats(consensus) {
     }
     
     function getSimilarityColor(similarity) {
-        if (similarity >= 90) return 'rgba(39, 174, 96, 0.8)';  // Verde
-        if (similarity >= 70) return 'rgba(241, 196, 15, 0.8)'; // Amarillo
-        if (similarity >= 50) return 'rgba(230, 126, 34, 0.8)'; // Naranja
-        return 'rgba(231, 76, 60, 0.8)'; // Rojo
+        if (similarity >= 90) return 'rgba(39, 174, 96, 0.8)';
+        if (similarity >= 70) return 'rgba(241, 196, 15, 0.8)';
+        if (similarity >= 50) return 'rgba(230, 126, 34, 0.8)';
+        return 'rgba(231, 76, 60, 0.8)';
     }
     
     function initSequenceStatsSelector() {
         const statsSelect = document.getElementById('sequence-stats-select');
         const statsContainer = document.getElementById('sequence-stats-container');
         
-        if (!statsSelect || !statsContainer || !sequences.length) return;
-        
-        // Función para actualizar las estadísticas mostradas
         function updateSequenceStats() {
             const selectedIndex = parseInt(statsSelect.value);
             const selectedSequence = sequences[selectedIndex];
             
-            if (!selectedSequence) return;
-            
-            // Generar HTML para las estadísticas de la secuencia seleccionada
             const statsHTML = generateSequenceStatsHTML(selectedSequence, selectedIndex);
             
-            // Actualizar el contenedor con animación
             statsContainer.style.opacity = '0.5';
             setTimeout(() => {
                 statsContainer.innerHTML = statsHTML;
                 statsContainer.style.opacity = '1';
-                
-                // Agregar efectos hover a las tarjetas de estadísticas
                 addStatsCardEffects();
             }, 150);
         }
         
-        // Event listener para cambio de secuencia
         statsSelect.addEventListener('change', updateSequenceStats);
-        
-        // Inicializar con la primera secuencia
         updateSequenceStats();
     }
     
@@ -591,7 +493,6 @@ function calculateConsensusStats(consensus) {
                     </span>
                 </div>
                 
-                <!-- Estadísticas principales -->
                 <div class="main-stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                     <div class="main-stat-card">
                         <div class="main-stat-value" style="font-size: 1.8rem; font-weight: bold; color: var(--primary-red);">
@@ -619,7 +520,6 @@ function calculateConsensusStats(consensus) {
                     </div>
                 </div>
                 
-                <!-- Composición de bases detallada -->
                 <div style="background-color: rgba(30, 30, 30, 0.5); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
                     <h5 style="color: var(--text-gray); margin-bottom: 1rem; display: flex; align-items: center;">
                         <i class="fas fa-chart-pie" style="margin-right: 0.5rem;"></i>
@@ -630,7 +530,6 @@ function calculateConsensusStats(consensus) {
                     </div>
                 </div>
                 
-                <!-- Barras de progreso para composición -->
                 <div style="background-color: rgba(30, 30, 30, 0.5); padding: 1.5rem; border-radius: 8px;">
                     <h5 style="color: var(--text-gray); margin-bottom: 1rem; display: flex; align-items: center;">
                         <i class="fas fa-chart-bar" style="margin-right: 0.5rem;"></i>
@@ -644,16 +543,16 @@ function calculateConsensusStats(consensus) {
     
     function generateBaseCompositionHTML(bases, totalBases) {
         const baseColors = {
-            'A': '#e74c3c', // Rojo
-            'T': '#3498db', // Azul  
-            'C': '#f39c12', // Naranja
-            'G': '#27ae60', // Verde
-            'N': '#95a5a6'  // Gris
+            'A': '#e74c3c',
+            'T': '#3498db',
+            'C': '#f39c12',
+            'G': '#27ae60',
+            'N': '#95a5a6'
         };
         
         let html = '';
         for (const [base, count] of Object.entries(bases)) {
-            const percentage = totalBases > 0 ? (count / totalBases * 100) : 0;
+            const percentage = (count / totalBases * 100);
             html += `
                 <div class="base-stat-card" style="text-align: center; padding: 1rem; background-color: rgba(0,0,0,0.3); border-radius: 6px; border-top: 3px solid ${baseColors[base]};">
                     <div style="font-size: 1.5rem; font-weight: bold; color: ${baseColors[base]};">
@@ -682,7 +581,7 @@ function calculateConsensusStats(consensus) {
         
         let html = '';
         for (const [base, count] of Object.entries(bases)) {
-            const percentage = totalBases > 0 ? (count / totalBases * 100) : 0;
+            const percentage = (count / totalBases * 100);
             html += `
                 <div style="margin-bottom: 1rem;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
@@ -699,7 +598,6 @@ function calculateConsensusStats(consensus) {
     }
     
     function addStatsCardEffects() {
-        // Agregar efectos hover a las tarjetas de estadísticas
         const statCards = document.querySelectorAll('.base-stat-card, .main-stat-card');
         
         statCards.forEach(card => {
@@ -722,22 +620,14 @@ function calculateConsensusStats(consensus) {
         const sequenceSelect = document.getElementById('sequence-select');
         const dnaDisplay = document.getElementById('dna-sequence-display');
         
-        if (!sequenceSelect || !dnaDisplay || !sequences.length) return;
-        
-        // Función para actualizar la visualización de la secuencia
         function updateSequenceDisplay() {
             const selectedIndex = parseInt(sequenceSelect.value);
             const selectedSequence = sequences[selectedIndex];
             
-            if (!selectedSequence) return;
-            
-            // Limpiar display anterior
             dnaDisplay.innerHTML = '';
             
-            // Mostrar hasta 120 bases
             const sequenceToShow = selectedSequence.sequence.slice(0, 120);
             
-            // Crear elementos para cada base
             sequenceToShow.split('').forEach(base => {
                 const span = document.createElement('span');
                 span.textContent = base;
@@ -745,7 +635,6 @@ function calculateConsensusStats(consensus) {
                 dnaDisplay.appendChild(span);
             });
             
-            // Agregar indicador si hay más bases
             if (selectedSequence.sequence.length > 120) {
                 const moreIndicator = document.createElement('span');
                 moreIndicator.style.color = 'var(--text-gray)';
@@ -754,10 +643,7 @@ function calculateConsensusStats(consensus) {
             }
         }
         
-        // Event listener para cambio de secuencia
         sequenceSelect.addEventListener('change', updateSequenceDisplay);
-        
-        // Inicializar con la primera secuencia
         updateSequenceDisplay();
     }
     
@@ -766,22 +652,17 @@ function calculateConsensusStats(consensus) {
         const seq2Select = document.getElementById('seq-select-2');
         const distanceResult = document.getElementById('distance-result');
         
-        if (!seq1Select || !seq2Select || !distanceResult) return;
-        
         function updateDistance() {
             const seq1 = seq1Select.value;
             const seq2 = seq2Select.value;
             
-            // Agregar efecto de carga
             distanceResult.classList.add('loading');
             
             setTimeout(() => {
                 if (seq1 === seq2) {
-                    // Misma secuencia
                     distanceResult.textContent = '0.0000';
                     distanceResult.style.color = 'var(--accent-green)';
                 } else {
-                    // Buscar distancia en la matriz
                     const key1 = `${seq1}|${seq2}`;
                     const key2 = `${seq2}|${seq1}`;
                     
@@ -790,16 +671,14 @@ function calculateConsensusStats(consensus) {
                     if (distance !== undefined) {
                         distanceResult.textContent = distance.toFixed(4);
                         
-                        // Cambiar color basado en la distancia
                         if (distance < 0.1) {
-                            distanceResult.style.color = 'var(--accent-green)'; // Verde para alta similitud
+                            distanceResult.style.color = 'var(--accent-green)';
                         } else if (distance < 0.3) {
-                            distanceResult.style.color = '#f1c40f'; // Amarillo para similitud media
+                            distanceResult.style.color = '#f1c40f';
                         } else {
-                            distanceResult.style.color = 'var(--primary-red)'; // Rojo para baja similitud
+                            distanceResult.style.color = 'var(--primary-red)';
                         }
                         
-                        // Agregar efecto de pulso
                         distanceResult.classList.add('distance-highlight');
                         setTimeout(() => {
                             distanceResult.classList.remove('distance-highlight');
@@ -811,40 +690,25 @@ function calculateConsensusStats(consensus) {
                     }
                 }
                 
-                // Remover efecto de carga
                 distanceResult.classList.remove('loading');
-            }, 300); // Simular tiempo de procesamiento
+            }, 300);
         }
         
-        // Event listeners para ambos selectores
         seq1Select.addEventListener('change', updateDistance);
         seq2Select.addEventListener('change', updateDistance);
-        
-        // Inicializar con los valores por defecto
         updateDistance();
     }
-    
-    // Funcionalidad adicional: Búsqueda de motivos
-    initMotifSearch();
     
     function initMotifSearch() {
         const motifInput = document.getElementById('motif-input');
         const searchButton = document.querySelector('.panel button[style*="width: 100%"]');
         
-        if (!motifInput || !searchButton) return;
-        
         searchButton.addEventListener('click', function() {
             const motif = motifInput.value.trim().toUpperCase();
-            
-            if (!motif) {
-                alert('Por favor, ingrese un motivo para buscar');
-                return;
-            }
             
             searchMotifInSequences(motif);
         });
         
-        // También buscar al presionar Enter
         motifInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 searchButton.click();
@@ -855,12 +719,7 @@ function calculateConsensusStats(consensus) {
     function searchMotifInSequences(motif) {
         const results = [];
         
-        // Validar motivo
         const validBases = /^[ATCGN]+$/i;
-        if (!validBases.test(motif)) {
-            showNotification('El motivo debe contener solo bases válidas (A, T, C, G, N)', 'error');
-            return;
-        }
         
         sequences.forEach((seq, seqIndex) => {
             const sequence = seq.sequence.toUpperCase();
@@ -869,7 +728,7 @@ function calculateConsensusStats(consensus) {
             while ((position = sequence.indexOf(motif, position)) !== -1) {
                 results.push({
                     sequenceTitle: seq.title,
-                    position: position + 1, // 1-indexed
+                    position: position + 1,
                     endPosition: position + motif.length,
                     context: getSequenceContext(sequence, position, motif.length)
                 });
@@ -877,10 +736,8 @@ function calculateConsensusStats(consensus) {
             }
         });
         
-        // Mostrar resultados
         displayMotifResults(motif, results);
         
-        // Mostrar notificación de éxito
         if (results.length > 0) {
             showNotification(`Se encontraron ${results.length} coincidencias`, 'success');
         } else {
@@ -899,11 +756,9 @@ function calculateConsensusStats(consensus) {
     }
     
     function displayMotifResults(motif, results) {
-        // Buscar el contenedor de resultados existente o crearlo
         let resultsContainer = document.querySelector('.motif-results');
         
         if (!resultsContainer) {
-            // Buscar el panel de motivos
             const motifPanels = Array.from(document.querySelectorAll('.panel h3')).filter(h3 => 
                 h3.textContent.toLowerCase().includes('motivo')
             );
@@ -914,7 +769,6 @@ function calculateConsensusStats(consensus) {
                 resultsContainer.className = 'motif-results';
                 resultsContainer.style.marginTop = '1.5rem';
                 
-                // Insertar después del botón de búsqueda
                 const button = panel.querySelector('button');
                 if (button && button.parentNode) {
                     button.parentNode.insertBefore(resultsContainer, button.nextSibling);
@@ -922,12 +776,8 @@ function calculateConsensusStats(consensus) {
             }
         }
         
-        if (!resultsContainer) return;
-        
-        // Limpiar resultados anteriores
         resultsContainer.innerHTML = '';
         
-        // Crear contenido de resultados
         const resultsTitle = document.createElement('h4');
         resultsTitle.textContent = `Resultados para "${motif}":`;
         resultsTitle.style.color = 'var(--accent-green)';
@@ -957,7 +807,7 @@ function calculateConsensusStats(consensus) {
             `;
             
             resultItem.innerHTML = `
-                <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 0.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                     <strong style="color: var(--accent-green);">${result.sequenceTitle}</strong>
                     <span style="color: var(--text-gray); font-size: 0.9rem;">
                         Posición ${result.position}-${result.endPosition}
@@ -970,7 +820,6 @@ function calculateConsensusStats(consensus) {
                 ` : ''}
             `;
             
-            // Agregar hover effect
             resultItem.addEventListener('mouseenter', function() {
                 this.style.backgroundColor = 'rgba(42, 157, 143, 0.2)';
                 this.style.transform = 'translateX(5px)';
@@ -986,7 +835,6 @@ function calculateConsensusStats(consensus) {
         
         resultsContainer.appendChild(resultsList);
         
-        // Agregar estadísticas
         const stats = document.createElement('div');
         stats.style.cssText = `
             margin-top: 1rem;
@@ -1019,29 +867,18 @@ function calculateConsensusStats(consensus) {
         resultsContainer.appendChild(stats);
     }
     
-    // Funcionalidad de exportación
-    initExportFunctions();
-    
     function initExportFunctions() {
-        // Botón de exportar FASTA
         const exportButton = document.getElementById('export-fasta-btn');
+        const copyButton = document.getElementById('copy-sequences-btn');
+        
         if (exportButton) {
             exportButton.addEventListener('click', exportToFASTA);
         }
         
-        // Botón de copiar secuencias
-        const copyButton = document.getElementById('copy-sequences-btn');
         if (copyButton) {
             copyButton.addEventListener('click', copySequencesToClipboard);
         }
         
-        // Botón de generar gráfico (placeholder por ahora)
-        const chartButton = document.getElementById('generate-chart-btn');
-        if (chartButton) {
-            chartButton.addEventListener('click', generateCustomChart);
-        }
-        
-        // También buscar botones por texto (para compatibilidad)
         const allButtons = document.querySelectorAll('button');
         allButtons.forEach(button => {
             if (button.textContent.includes('Exportar FASTA') && !button.id) {
@@ -1051,22 +888,14 @@ function calculateConsensusStats(consensus) {
     }
     
     function copySequencesToClipboard() {
-        if (!sequences.length) {
-            showNotification('No hay secuencias para copiar', 'error');
-            return;
-        }
-        
         let fastaContent = '';
         sequences.forEach(seq => {
             fastaContent += `>${seq.title}\n${seq.sequence}\n`;
         });
         
-        // Copiar al portapapeles
         navigator.clipboard.writeText(fastaContent).then(() => {
             showNotification('Secuencias copiadas al portapapeles', 'success');
         }).catch(err => {
-            console.error('Error copiando al portapapeles:', err);
-            // Fallback para navegadores que no soportan clipboard API
             const textArea = document.createElement('textarea');
             textArea.value = fastaContent;
             document.body.appendChild(textArea);
@@ -1077,32 +906,15 @@ function calculateConsensusStats(consensus) {
         });
     }
     
-    function generateCustomChart() {
-        showNotification('Funcionalidad de gráficos personalizada en desarrollo', 'warning');
-        // TODO: Implementar generación de gráficos personalizados
-    }
-    
     function exportToFASTA() {
-        if (!sequences.length) {
-            showNotification('No hay secuencias para exportar', 'error');
-            return;
-        }
-        
-        // Agregar estado de carga al botón
         const exportButton = document.getElementById('export-fasta-btn') || 
                            Array.from(document.querySelectorAll('button')).find(btn => 
                                btn.textContent.includes('Exportar FASTA'));
-        
-        if (!exportButton) {
-            console.error('No se encontró el botón de exportar');
-            return;
-        }
         
         const originalHTML = exportButton.innerHTML;
         exportButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exportando...';
         exportButton.disabled = true;
         
-        // Enviar secuencias al servidor para generar archivo
         fetch('/export_fasta', {
             method: 'POST',
             headers: {
@@ -1113,39 +925,29 @@ function calculateConsensusStats(consensus) {
             })
         })
         .then(response => {
-            if (!response.ok) {
-                throw new Error(`Error ${response.status}: ${response.statusText}`);
-            }
             return response.blob();
         })
         .then(blob => {
-            // Crear URL para descarga
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
             
-            // Generar nombre del archivo con timestamp
             const now = new Date();
             const timestamp = now.toISOString().slice(0,19).replace(/[:-]/g, '').replace('T', '_');
             a.download = `genomics_freedom_export_${timestamp}.fasta`;
             
-            // Agregar al DOM, hacer click y remover
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             
-            // Limpiar URL
             window.URL.revokeObjectURL(url);
             
-            // Mostrar notificación de éxito
             showNotification(`Archivo FASTA exportado: ${a.download}`, 'success');
         })
         .catch(error => {
-            console.error('Error:', error);
             showNotification('Error al exportar archivo FASTA: ' + error.message, 'error');
         })
         .finally(() => {
-            // Restaurar botón
             exportButton.innerHTML = originalHTML;
             exportButton.disabled = false;
         });
@@ -1155,7 +957,6 @@ function calculateConsensusStats(consensus) {
 // Funciones de utilidad
 
 function showNotification(message, type = 'success') {
-    // Crear elemento de notificación
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.innerHTML = `
@@ -1163,15 +964,12 @@ function showNotification(message, type = 'success') {
         <button onclick="this.parentElement.remove()" style="background: none; border: none; color: white; margin-left: 10px; cursor: pointer; font-weight: bold;">&times;</button>
     `;
     
-    // Agregar al DOM
     document.body.appendChild(notification);
     
-    // Mostrar con animación
     setTimeout(() => {
         notification.classList.add('show');
     }, 100);
     
-    // Auto-remover después de 5 segundos
     setTimeout(() => {
         if (notification.parentElement) {
             notification.classList.remove('show');
@@ -1192,9 +990,7 @@ function addTooltip(element, text) {
     element.appendChild(tooltipText);
 }
 
-// Agregar tooltips a elementos relevantes cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
-    // Agregar tooltips a bases de ADN
     setTimeout(() => {
         const dnaBases = document.querySelectorAll('.dna-base');
         dnaBases.forEach((base, index) => {
@@ -1202,15 +998,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }, 1000);
     
-    // Agregar tooltip al resultado de distancia
     const distanceResult = document.getElementById('distance-result');
     if (distanceResult) {
         addTooltip(distanceResult, 'Distancia genética calculada mediante alineamiento múltiple');
     }
 });
-
-// Función auxiliar para seleccionar elementos que contienen texto específico
-function querySelector(selector) {
-    const elements = document.querySelectorAll(selector);
-    return Array.from(elements);
-}
