@@ -22,7 +22,9 @@ from Bio.SeqRecord import SeqRecord
 app = Flask(__name__)
 
 UPLOAD_FOLDER = 'uploads'
-MUSCLE_PATH = os.path.join('bin', 'muscle.exe')
+# Usar ruta relativa al archivo app.py
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MUSCLE_PATH = os.path.join(BASE_DIR, 'bin', 'muscle.exe')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs('static', exist_ok=True)
 
@@ -207,10 +209,20 @@ def generate_phylogenetic_tree_with_distances(sequences):
     """Genera un árbol filogenético y devuelve tanto la imagen como la matriz de distancias"""
     try:
         print("Iniciando generación de árbol filogenético...")
+        print(f"Directorio de trabajo actual: {os.getcwd()}")
+        print(f"Ruta de MUSCLE: {MUSCLE_PATH}")
+        print(f"Ruta absoluta de MUSCLE: {os.path.abspath(MUSCLE_PATH)}")
         
         # Validar que MUSCLE existe
         if not os.path.exists(MUSCLE_PATH):
             print(f"ERROR: MUSCLE no encontrado en {MUSCLE_PATH}")
+            print("Contenido del directorio actual:")
+            for item in os.listdir('.'):
+                print(f"  - {item}")
+            if os.path.exists('bin'):
+                print("Contenido del directorio bin:")
+                for item in os.listdir('bin'):
+                    print(f"  - bin/{item}")
             return generate_simple_phylogenetic_tree(sequences)
         
         # Crear archivo FASTA temporal
@@ -497,6 +509,49 @@ def get_distance():
         return jsonify({'distance': distance})
     else:
         return jsonify({'distance': 0.0})  # Misma secuencia
+
+# Nueva ruta para exportar FASTA
+@app.route('/export_fasta', methods=['POST'])
+def export_fasta():
+    from flask import make_response
+    from datetime import datetime
+    
+    try:
+        data = request.get_json()
+        sequences = data.get('sequences', [])
+        
+        if not sequences:
+            return jsonify({'error': 'No hay secuencias para exportar'}), 400
+        
+        # Generar contenido FASTA
+        fasta_content = ""
+        for seq in sequences:
+            title = seq.get('title', 'Unnamed_sequence')
+            sequence = seq.get('sequence', '')
+            
+            if sequence:
+                fasta_content += f">{title}\n{sequence}\n"
+        
+        if not fasta_content:
+            return jsonify({'error': 'No hay secuencias válidas para exportar'}), 400
+        
+        # Crear respuesta con archivo
+        response = make_response(fasta_content)
+        
+        # Generar nombre de archivo con timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"genomics_freedom_export_{timestamp}.fasta"
+        
+        # Configurar headers para descarga
+        response.headers['Content-Type'] = 'text/plain'
+        response.headers['Content-Disposition'] = f'attachment; filename="{filename}"'
+        response.headers['Content-Length'] = len(fasta_content)
+        
+        return response
+        
+    except Exception as e:
+        print(f"Error en exportación FASTA: {e}")
+        return jsonify({'error': 'Error interno del servidor'}), 500
     
 if __name__ == '__main__':
     app.run(debug=True)

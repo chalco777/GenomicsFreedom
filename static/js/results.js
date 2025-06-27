@@ -26,7 +26,697 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Inicializar funcionalidades
     initSequenceVisualization();
+    initSequenceStatsSelector();
     initDistanceCalculator();
+    initMultipleAlignment();
+    
+    function initMultipleAlignment() {
+        const generateBtn = document.getElementById('generate-alignment-btn');
+        const viewSelect = document.getElementById('alignment-view-select');
+        const thresholdSlider = document.getElementById('similarity-threshold');
+        const thresholdValue = document.getElementById('threshold-value');
+        
+        if (!generateBtn) return;
+        
+        // Actualizar valor del threshold
+        if (thresholdSlider && thresholdValue) {
+            thresholdSlider.addEventListener('input', function() {
+                thresholdValue.textContent = this.value + '%';
+            });
+        }
+        
+        // Generar alineamiento al hacer clic
+        generateBtn.addEventListener('click', generateMultipleAlignment);
+        
+        // Cambiar vista del alineamiento
+        if (viewSelect) {
+            viewSelect.addEventListener('change', updateAlignmentView);
+        }
+        
+        // Generar matriz de similitud inicial
+        generateSimilarityMatrix();
+    }
+    
+    function generateMultipleAlignment() {
+        const generateBtn = document.getElementById('generate-alignment-btn');
+        const alignmentContent = document.getElementById('alignment-content');
+        const alignmentStats = document.getElementById('alignment-stats');
+        
+        if (!sequences.length) {
+            showNotification('No hay secuencias para alinear', 'error');
+            return;
+        }
+        
+        if (sequences.length < 2) {
+            showNotification('Se requieren al menos 2 secuencias para el alineamiento', 'warning');
+            return;
+        }
+        
+        // Mostrar estado de carga
+        const originalHTML = generateBtn.innerHTML;
+        generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
+        generateBtn.disabled = true;
+        
+        // Simular procesamiento (en una implementación real, esto llamaría al servidor)
+        setTimeout(() => {
+            try {
+                const alignment = performSimpleAlignment();
+                displayAlignment(alignment);
+                updateAlignmentStats(alignment);
+                
+                // Mostrar estadísticas
+                if (alignmentStats) {
+                    alignmentStats.style.display = 'block';
+                }
+                
+                showNotification('Alineamiento múltiple generado exitosamente', 'success');
+            } catch (error) {
+                showNotification('Error generando el alineamiento: ' + error.message, 'error');
+            } finally {
+                generateBtn.innerHTML = originalHTML;
+                generateBtn.disabled = false;
+            }
+        }, 1500);
+    }
+    
+    function performSimpleAlignment() {
+        // Implementación simple de alineamiento (para demostración)
+        // En una implementación real, esto usaría MUSCLE o similar
+        
+        const maxLength = Math.max(...sequences.map(s => s.sequence.length));
+        const alignedSequences = [];
+        
+        sequences.forEach(seq => {
+            // Padding simple - en la realidad sería más sofisticado
+            const paddedSeq = seq.sequence.padEnd(maxLength, '-');
+            alignedSequences.push({
+                title: seq.title,
+                sequence: paddedSeq,
+                originalLength: seq.sequence.length
+            });
+        });
+        
+        return {
+            sequences: alignedSequences,
+            length: maxLength,
+            conservedPositions: calculateConservedPositions(alignedSequences),
+            similarity: calculateAverageSimilarity(alignedSequences),
+            gapsCount: calculateTotalGaps(alignedSequences)
+        };
+    }
+    
+    function calculateConservedPositions(alignedSeqs) {
+        if (!alignedSeqs.length) return 0;
+        
+        const length = alignedSeqs[0].sequence.length;
+        let conserved = 0;
+        
+        for (let i = 0; i < length; i++) {
+            const bases = alignedSeqs.map(seq => seq.sequence[i]);
+            const uniqueBases = new Set(bases.filter(base => base !== '-'));
+            
+            if (uniqueBases.size === 1 && !uniqueBases.has('-')) {
+                conserved++;
+            }
+        }
+        
+        return conserved;
+    }
+    
+    function calculateAverageSimilarity(alignedSeqs) {
+        if (alignedSeqs.length < 2) return 100;
+        
+        let totalSimilarity = 0;
+        let comparisons = 0;
+        
+        for (let i = 0; i < alignedSeqs.length; i++) {
+            for (let j = i + 1; j < alignedSeqs.length; j++) {
+                const similarity = calculatePairwiseSimilarity(
+                    alignedSeqs[i].sequence, 
+                    alignedSeqs[j].sequence
+                );
+                totalSimilarity += similarity;
+                comparisons++;
+            }
+        }
+        
+        return comparisons > 0 ? (totalSimilarity / comparisons) : 0;
+    }
+    
+    function calculatePairwiseSimilarity(seq1, seq2) {
+        if (seq1.length !== seq2.length) return 0;
+        
+        let matches = 0;
+        let validPositions = 0;
+        
+        for (let i = 0; i < seq1.length; i++) {
+            if (seq1[i] !== '-' && seq2[i] !== '-') {
+                validPositions++;
+                if (seq1[i] === seq2[i]) {
+                    matches++;
+                }
+            }
+        }
+        
+        return validPositions > 0 ? (matches / validPositions) * 100 : 0;
+    }
+    
+    function calculateTotalGaps(alignedSeqs) {
+        return alignedSeqs.reduce((total, seq) => {
+            return total + (seq.sequence.match(/-/g) || []).length;
+        }, 0);
+    }
+    
+    function displayAlignment(alignment) {
+        const alignmentContent = document.getElementById('alignment-content');
+        const viewSelect = document.getElementById('alignment-view-select');
+        
+        if (!alignmentContent) return;
+        
+        const viewType = viewSelect ? viewSelect.value : 'preview';
+        let html = '';
+        
+        switch (viewType) {
+            case 'preview':
+                html = generateAlignmentPreview(alignment);
+                break;
+            case 'full':
+                html = generateFullAlignment(alignment);
+                break;
+            case 'consensus':
+                html = generateConsensusView(alignment);
+                break;
+            default:
+                html = generateAlignmentPreview(alignment);
+        }
+        
+        alignmentContent.innerHTML = html;
+    }
+    
+    function generateAlignmentPreview(alignment) {
+        const previewLength = 50;
+        let html = '<div style="margin-bottom: 1rem;">';
+        html += '<div style="color: var(--accent-green); font-weight: bold; margin-bottom: 0.5rem;">Vista Previa del Alineamiento (primeros 50 bp):</div>';
+        
+        alignment.sequences.forEach((seq, index) => {
+            const preview = seq.sequence.substring(0, previewLength);
+            html += `<div style="margin-bottom: 0.3rem;">`;
+            html += `<span style="color: var(--accent-blue); width: 150px; display: inline-block;">${seq.title.substring(0, 15)}:</span>`;
+            html += `<span style="letter-spacing: 1px;">${formatAlignmentSequence(preview)}</span>`;
+            html += `</div>`;
+        });
+        
+        if (alignment.length > previewLength) {
+            html += `<div style="color: var(--text-gray); margin-top: 0.5rem; font-style: italic;">`;
+            html += `... y ${alignment.length - previewLength} posiciones más`;
+            html += `</div>`;
+        }
+        
+        html += '</div>';
+        return html;
+    }
+    
+    function generateFullAlignment(alignment) {
+        const chunkSize = 80; // Mostrar en bloques de 80 caracteres
+        let html = '<div>';
+        html += '<div style="color: var(--accent-green); font-weight: bold; margin-bottom: 1rem;">Alineamiento Completo:</div>';
+        
+        for (let start = 0; start < alignment.length; start += chunkSize) {
+            html += `<div style="margin-bottom: 2rem; background-color: rgba(30, 30, 30, 0.3); padding: 1rem; border-radius: 5px;">`;
+            html += `<div style="color: var(--text-gray); margin-bottom: 0.8rem; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Posiciones ${start + 1}-${Math.min(start + chunkSize, alignment.length)}:</div>`;
+            
+            alignment.sequences.forEach((seq, index) => {
+                const chunk = seq.sequence.substring(start, start + chunkSize);
+                const shortTitle = seq.title.length > 15 ? seq.title.substring(0, 15) + '...' : seq.title;
+                
+                html += `<div style="margin-bottom: 0.4rem; font-family: 'Courier New', monospace;">`;
+                html += `<span style="color: var(--accent-blue); width: 140px; display: inline-block; font-size: 0.9rem; font-weight: bold;" title="${seq.title}">${shortTitle}:</span>`;
+                html += `<span style="letter-spacing: 1px; word-break: break-all;">${formatAlignmentSequence(chunk)}</span>`;
+                html += `</div>`;
+            });
+            
+            // Agregar regla de conservación para este bloque
+            html += `<div style="margin-top: 0.8rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.5rem;">`;
+            html += `<span style="color: var(--text-gray); width: 140px; display: inline-block; font-size: 0.9rem;">Conservación:</span>`;
+            html += `<span style="letter-spacing: 1px;">${generateConservationLine(alignment, start, chunkSize)}</span>`;
+            html += `</div>`;
+            
+            html += `</div>`;
+        }
+        
+        html += '</div>';
+        return html;
+    }
+
+function generateConservationLine(alignment, start, chunkSize) {
+    let conservationLine = '';
+    const end = Math.min(start + chunkSize, alignment.length);
+    
+    for (let pos = start; pos < end; pos++) {
+        const bases = alignment.sequences.map(seq => seq.sequence[pos]);
+        const uniqueBases = new Set(bases.filter(base => base !== '-'));
+        
+        if (uniqueBases.size === 1 && !uniqueBases.has('-')) {
+            // Posición completamente conservada
+            conservationLine += '<span style="color: var(--accent-green); font-weight: bold;">*</span>';
+        } else if (uniqueBases.size <= 2) {
+            // Posición parcialmente conservada
+            conservationLine += '<span style="color: #f1c40f;">:</span>';
+        } else {
+            // Posición variable
+            conservationLine += '<span style="color: var(--text-gray);">.</span>';
+        }
+    }
+    
+    return conservationLine;
+}
+    
+    function generateConsensusView(alignment) {
+        const consensus = calculateConsensusSequence(alignment);
+        let html = '<div>';
+        html += '<div style="color: var(--accent-green); font-weight: bold; margin-bottom: 1rem;">Secuencia Consenso:</div>';
+        
+        html += `<div style="background-color: rgba(42, 157, 143, 0.1); padding: 1rem; border-radius: 5px; margin-bottom: 1rem;">`;
+        html += `<div style="color: var(--accent-green); font-weight: bold; margin-bottom: 0.5rem;">Consenso:</div>`;
+        
+        // Formatear secuencia consenso con saltos de línea cada 80 caracteres
+        const formattedConsensus = formatConsensusWithLineBreaks(consensus.sequence, 80);
+        html += `<div style="letter-spacing: 2px; font-size: 1.1rem; word-break: break-all; white-space: pre-wrap; font-family: 'Courier New', monospace; line-height: 1.8;">${formattedConsensus}</div>`;
+        html += `</div>`;
+        
+        // Agregar información adicional sobre la conservación
+        html += `<div style="margin-top: 1rem; background-color: rgba(30, 30, 30, 0.3); padding: 1rem; border-radius: 5px;">`;
+        html += `<div style="color: var(--text-gray); margin-bottom: 0.5rem; font-weight: bold;">Estadísticas del Consenso:</div>`;
+        
+        const stats = calculateConsensusStats(consensus);
+        html += `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1rem;">`;
+        html += `<div style="text-align: center;">`;
+        html += `<div style="font-size: 1.5rem; font-weight: bold; color: var(--accent-green);">${stats.fullyConserved}</div>`;
+        html += `<div style="font-size: 0.9rem; color: var(--text-gray);">Posiciones 100% conservadas</div>`;
+        html += `</div>`;
+        html += `<div style="text-align: center;">`;
+        html += `<div style="font-size: 1.5rem; font-weight: bold; color: #f1c40f">${stats.partiallyConserved}</div>`;
+        html += `<div style="font-size: 0.9rem; color: var(--text-gray);">Posiciones >50% conservadas</div>`;
+        html += `</div>`;
+        html += `<div style="text-align: center;">`;
+        html += `<div style="font-size: 1.5rem; font-weight: bold; color: var(--primary-red);">${stats.variable}</div>`;
+        html += `<div style="font-size: 0.9rem; color: var(--text-gray);">Posiciones variables</div>`;
+        html += `</div>`;
+        html += `</div>`;
+        
+        html += `<div style="margin-top: 1rem;">`;
+        html += `<div style="color: var(--text-gray); margin-bottom: 0.5rem;">Leyenda:</div>`;
+        html += `<div style="font-size: 0.9rem; line-height: 1.6;">`;
+        html += `<span style="color: var(--accent-green); font-weight: bold;">●</span> Posición conservada (100% similitud)<br>`;
+        html += `<span style="color: #f1c40f; font-weight: bold;">●</span> Posición parcialmente conservada (>50% similitud)<br>`;
+        html += `<span style="color: var(--primary-red); font-weight: bold;">●</span> Posición variable (<50% similitud)<br>`;
+        html += `<span style="color: var(--text-gray);">-</span> Gap en la secuencia`;
+        html += `</div>`;
+        html += `</div>`;
+        html += `</div>`;
+        
+        html += '</div>';
+        return html;
+    }
+
+function formatConsensusWithLineBreaks(sequence, lineLength = 80) {
+    let formatted = '';
+    let position = 1;
+    
+    for (let i = 0; i < sequence.length; i += lineLength) {
+        const chunk = sequence.substring(i, i + lineLength);
+        
+        // Agregar número de posición al inicio de cada línea
+        const positionLabel = `${String(position).padStart(6, ' ')}: `;
+        
+        // Formatear chunk con colores
+        const formattedChunk = chunk.split('').map(base => {
+            if (base === '-') {
+                return `<span style="color: var(--text-gray);">-</span>`;
+            } else {
+                const color = getBaseColor(base);
+                return `<span style="color: ${color}; font-weight: bold;">${base}</span>`;
+            }
+        }).join('');
+        
+        formatted += `<span style="color: #95a5a6; font-weight: normal;">${positionLabel}</span>${formattedChunk}`;
+        
+        // Agregar salto de línea excepto en la última línea
+        if (i + lineLength < sequence.length) {
+            formatted += '\n';
+        }
+        
+        position += lineLength;
+    }
+    
+    return formatted;
+}
+
+function calculateConsensusStats(consensus) {
+    let fullyConserved = 0;
+    let partiallyConserved = 0;
+    let variable = 0;
+    
+    consensus.conservation.forEach(conservation => {
+        if (conservation === 1.0) {
+            fullyConserved++;
+        } else if (conservation > 0.5) {
+            partiallyConserved++;
+        } else {
+            variable++;
+        }
+    });
+    
+    return {
+        fullyConserved,
+        partiallyConserved,
+        variable
+    };
+}
+    
+    function calculateConsensusSequence(alignment) {
+        const length = alignment.length;
+        let consensus = '';
+        let conservation = [];
+        
+        for (let i = 0; i < length; i++) {
+            const baseCounts = {};
+            let totalBases = 0;
+            
+            alignment.sequences.forEach(seq => {
+                const base = seq.sequence[i];
+                if (base !== '-') {
+                    baseCounts[base] = (baseCounts[base] || 0) + 1;
+                    totalBases++;
+                }
+            });
+            
+            if (totalBases === 0) {
+                consensus += '-';
+                conservation.push(0);
+            } else {
+                const mostCommon = Object.keys(baseCounts).reduce((a, b) => 
+                    baseCounts[a] > baseCounts[b] ? a : b);
+                const frequency = baseCounts[mostCommon] / totalBases;
+                
+                consensus += mostCommon;
+                conservation.push(frequency);
+            }
+        }
+        
+        return { sequence: consensus, conservation };
+    }
+    
+    function formatAlignmentSequence(sequence) {
+        return sequence.split('').map(base => {
+            if (base === '-') {
+                return `<span style="color: var(--text-gray);">-</span>`;
+            } else {
+                const color = getBaseColor(base);
+                return `<span style="color: ${color};">${base}</span>`;
+            }
+        }).join('');
+    }
+    
+    function formatConsensusSequence(sequence) {
+        return sequence.split('').map((base, index) => {
+            if (base === '-') {
+                return `<span style="color: var(--text-gray);">-</span>`;
+            } else {
+                const color = getBaseColor(base);
+                return `<span style="color: ${color}; font-weight: bold;">${base}</span>`;
+            }
+        }).join('');
+    }
+    
+    function getBaseColor(base) {
+        const colors = {
+            'A': '#e74c3c',
+            'T': '#3498db',
+            'C': '#f39c12',
+            'G': '#27ae60',
+            'N': '#95a5a6'
+        };
+        return colors[base.toUpperCase()] || '#ffffff';
+    }
+    
+    function updateAlignmentView() {
+        // Si ya hay un alineamiento generado, actualizar la vista
+        const alignmentContent = document.getElementById('alignment-content');
+        if (alignmentContent && alignmentContent.innerHTML && !alignmentContent.innerHTML.includes('Haz clic')) {
+            // Re-generar con la nueva vista
+            generateMultipleAlignment();
+        }
+    }
+    
+    function updateAlignmentStats(alignment) {
+        document.getElementById('alignment-length').textContent = alignment.length.toLocaleString();
+        document.getElementById('conserved-positions').textContent = alignment.conservedPositions.toLocaleString();
+        document.getElementById('similarity-score').textContent = alignment.similarity.toFixed(1) + '%';
+        document.getElementById('gaps-count').textContent = alignment.gapsCount.toLocaleString();
+    }
+    
+    function generateSimilarityMatrix() {
+        const matrixContainer = document.getElementById('similarity-matrix');
+        if (!matrixContainer || !sequences.length) return;
+        
+        if (sequences.length < 2) {
+            matrixContainer.innerHTML = '<p style="color: var(--text-gray); text-align: center;">Se requieren al menos 2 secuencias para generar la matriz</p>';
+            return;
+        }
+        
+        let html = '<div class="dynamic-matrix-grid" style="display: grid; gap: 1px; background-color: rgba(255, 255, 255, 0.1); border-radius: 5px; overflow: hidden;">';
+        
+        // Calcular el número de columnas (secuencias + 1 para header)
+        const gridCols = sequences.length + 1;
+        html = html.replace('display: grid;', `display: grid; grid-template-columns: repeat(${gridCols}, 1fr);`);
+        
+        // Header vacío
+        html += '<div class="matrix-cell matrix-header">Secuencia</div>';
+        
+        // Headers de columnas
+        sequences.forEach(seq => {
+            const shortTitle = seq.title.length > 10 ? seq.title.substring(0, 10) + '...' : seq.title;
+            html += `<div class="matrix-cell matrix-header" title="${seq.title}">${shortTitle}</div>`;
+        });
+        
+        // Filas de datos
+        sequences.forEach((seq1, i) => {
+            const shortTitle1 = seq1.title.length > 10 ? seq1.title.substring(0, 10) + '...' : seq1.title;
+            html += `<div class="matrix-cell matrix-header" title="${seq1.title}">${shortTitle1}</div>`;
+            
+            sequences.forEach((seq2, j) => {
+                if (i === j) {
+                    html += '<div class="matrix-cell" style="background-color: var(--accent-green); color: white; font-weight: bold;">100%</div>';
+                } else {
+                    const similarity = calculateSequenceSimilarity(seq1.sequence, seq2.sequence);
+                    const color = getSimilarityColor(similarity);
+                    html += `<div class="matrix-cell" style="background-color: ${color}; color: white;">${similarity.toFixed(1)}%</div>`;
+                }
+            });
+        });
+        
+        html += '</div>';
+        matrixContainer.innerHTML = html;
+    }
+    
+    function calculateSequenceSimilarity(seq1, seq2) {
+        const minLength = Math.min(seq1.length, seq2.length);
+        if (minLength === 0) return 0;
+        
+        let matches = 0;
+        for (let i = 0; i < minLength; i++) {
+            if (seq1[i].toUpperCase() === seq2[i].toUpperCase()) {
+                matches++;
+            }
+        }
+        
+        return (matches / minLength) * 100;
+    }
+    
+    function getSimilarityColor(similarity) {
+        if (similarity >= 90) return 'rgba(39, 174, 96, 0.8)';  // Verde
+        if (similarity >= 70) return 'rgba(241, 196, 15, 0.8)'; // Amarillo
+        if (similarity >= 50) return 'rgba(230, 126, 34, 0.8)'; // Naranja
+        return 'rgba(231, 76, 60, 0.8)'; // Rojo
+    }
+    
+    function initSequenceStatsSelector() {
+        const statsSelect = document.getElementById('sequence-stats-select');
+        const statsContainer = document.getElementById('sequence-stats-container');
+        
+        if (!statsSelect || !statsContainer || !sequences.length) return;
+        
+        // Función para actualizar las estadísticas mostradas
+        function updateSequenceStats() {
+            const selectedIndex = parseInt(statsSelect.value);
+            const selectedSequence = sequences[selectedIndex];
+            
+            if (!selectedSequence) return;
+            
+            // Generar HTML para las estadísticas de la secuencia seleccionada
+            const statsHTML = generateSequenceStatsHTML(selectedSequence, selectedIndex);
+            
+            // Actualizar el contenedor con animación
+            statsContainer.style.opacity = '0.5';
+            setTimeout(() => {
+                statsContainer.innerHTML = statsHTML;
+                statsContainer.style.opacity = '1';
+                
+                // Agregar efectos hover a las tarjetas de estadísticas
+                addStatsCardEffects();
+            }, 150);
+        }
+        
+        // Event listener para cambio de secuencia
+        statsSelect.addEventListener('change', updateSequenceStats);
+        
+        // Inicializar con la primera secuencia
+        updateSequenceStats();
+    }
+    
+    function generateSequenceStatsHTML(sequence, index) {
+        const totalBases = sequence.length;
+        const gcContent = sequence.gc;
+        const atContent = 100 - gcContent;
+        
+        return `
+            <div class="sequence-stat-card-detailed" style="animation: fadeInUp 0.5s ease;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+                    <h4 style="color: var(--accent-green); margin: 0;">
+                        <i class="fas fa-dna"></i> ${sequence.title}
+                    </h4>
+                    <span style="background-color: rgba(42, 157, 143, 0.2); color: var(--accent-green); padding: 4px 12px; border-radius: 15px; font-size: 0.9rem;">
+                        Secuencia #${index + 1}
+                    </span>
+                </div>
+                
+                <!-- Estadísticas principales -->
+                <div class="main-stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="main-stat-card">
+                        <div class="main-stat-value" style="font-size: 1.8rem; font-weight: bold; color: var(--primary-red);">
+                            ${totalBases.toLocaleString()}
+                        </div>
+                        <div class="main-stat-label" style="color: var(--text-gray); font-size: 0.9rem;">
+                            Bases Totales
+                        </div>
+                    </div>
+                    <div class="main-stat-card">
+                        <div class="main-stat-value" style="font-size: 1.8rem; font-weight: bold; color: var(--accent-green);">
+                            ${gcContent.toFixed(2)}%
+                        </div>
+                        <div class="main-stat-label" style="color: var(--text-gray); font-size: 0.9rem;">
+                            Contenido GC
+                        </div>
+                    </div>
+                    <div class="main-stat-card">
+                        <div class="main-stat-value" style="font-size: 1.8rem; font-weight: bold; color: var(--accent-blue);">
+                            ${atContent.toFixed(2)}%
+                        </div>
+                        <div class="main-stat-label" style="color: var(--text-gray); font-size: 0.9rem;">
+                            Contenido AT
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Composición de bases detallada -->
+                <div style="background-color: rgba(30, 30, 30, 0.5); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                    <h5 style="color: var(--text-gray); margin-bottom: 1rem; display: flex; align-items: center;">
+                        <i class="fas fa-chart-pie" style="margin-right: 0.5rem;"></i>
+                        Composición de Bases
+                    </h5>
+                    <div class="base-composition-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 1rem;">
+                        ${generateBaseCompositionHTML(sequence.bases, totalBases)}
+                    </div>
+                </div>
+                
+                <!-- Barras de progreso para composición -->
+                <div style="background-color: rgba(30, 30, 30, 0.5); padding: 1.5rem; border-radius: 8px;">
+                    <h5 style="color: var(--text-gray); margin-bottom: 1rem; display: flex; align-items: center;">
+                        <i class="fas fa-chart-bar" style="margin-right: 0.5rem;"></i>
+                        Distribución Visual
+                    </h5>
+                    ${generateProgressBarsHTML(sequence.bases, totalBases)}
+                </div>
+            </div>
+        `;
+    }
+    
+    function generateBaseCompositionHTML(bases, totalBases) {
+        const baseColors = {
+            'A': '#e74c3c', // Rojo
+            'T': '#3498db', // Azul  
+            'C': '#f39c12', // Naranja
+            'G': '#27ae60', // Verde
+            'N': '#95a5a6'  // Gris
+        };
+        
+        let html = '';
+        for (const [base, count] of Object.entries(bases)) {
+            const percentage = totalBases > 0 ? (count / totalBases * 100) : 0;
+            html += `
+                <div class="base-stat-card" style="text-align: center; padding: 1rem; background-color: rgba(0,0,0,0.3); border-radius: 6px; border-top: 3px solid ${baseColors[base]};">
+                    <div style="font-size: 1.5rem; font-weight: bold; color: ${baseColors[base]};">
+                        ${base}
+                    </div>
+                    <div style="font-size: 1.2rem; color: white; margin: 0.5rem 0;">
+                        ${count.toLocaleString()}
+                    </div>
+                    <div style="font-size: 0.9rem; color: var(--text-gray);">
+                        ${percentage.toFixed(2)}%
+                    </div>
+                </div>
+            `;
+        }
+        return html;
+    }
+    
+    function generateProgressBarsHTML(bases, totalBases) {
+        const baseColors = {
+            'A': '#e74c3c',
+            'T': '#3498db', 
+            'C': '#f39c12',
+            'G': '#27ae60',
+            'N': '#95a5a6'
+        };
+        
+        let html = '';
+        for (const [base, count] of Object.entries(bases)) {
+            const percentage = totalBases > 0 ? (count / totalBases * 100) : 0;
+            html += `
+                <div style="margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="color: ${baseColors[base]}; font-weight: bold;">${base}</span>
+                        <span style="color: var(--text-gray); font-size: 0.9rem;">${count} (${percentage.toFixed(1)}%)</span>
+                    </div>
+                    <div style="background-color: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div style="height: 100%; background-color: ${baseColors[base]}; width: ${percentage}%; transition: width 0.8s ease; border-radius: 4px;"></div>
+                    </div>
+                </div>
+            `;
+        }
+        return html;
+    }
+    
+    function addStatsCardEffects() {
+        // Agregar efectos hover a las tarjetas de estadísticas
+        const statCards = document.querySelectorAll('.base-stat-card, .main-stat-card');
+        
+        statCards.forEach(card => {
+            card.style.transition = 'all 0.3s ease';
+            card.style.cursor = 'pointer';
+            
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            });
+        });
+    }
     
     function initSequenceVisualization() {
         const sequenceSelect = document.getElementById('sequence-select');
@@ -333,18 +1023,36 @@ document.addEventListener('DOMContentLoaded', function() {
     initExportFunctions();
     
     function initExportFunctions() {
-        const exportButton = document.querySelector('button:contains("Exportar FASTA")');
-        
+        // Botón de exportar FASTA
+        const exportButton = document.getElementById('export-fasta-btn');
         if (exportButton) {
-            exportButton.addEventListener('click', function() {
-                exportToFASTA();
-            });
+            exportButton.addEventListener('click', exportToFASTA);
         }
+        
+        // Botón de copiar secuencias
+        const copyButton = document.getElementById('copy-sequences-btn');
+        if (copyButton) {
+            copyButton.addEventListener('click', copySequencesToClipboard);
+        }
+        
+        // Botón de generar gráfico (placeholder por ahora)
+        const chartButton = document.getElementById('generate-chart-btn');
+        if (chartButton) {
+            chartButton.addEventListener('click', generateCustomChart);
+        }
+        
+        // También buscar botones por texto (para compatibilidad)
+        const allButtons = document.querySelectorAll('button');
+        allButtons.forEach(button => {
+            if (button.textContent.includes('Exportar FASTA') && !button.id) {
+                button.addEventListener('click', exportToFASTA);
+            }
+        });
     }
     
-    function exportToFASTA() {
+    function copySequencesToClipboard() {
         if (!sequences.length) {
-            alert('No hay secuencias para exportar');
+            showNotification('No hay secuencias para copiar', 'error');
             return;
         }
         
@@ -353,16 +1061,94 @@ document.addEventListener('DOMContentLoaded', function() {
             fastaContent += `>${seq.title}\n${seq.sequence}\n`;
         });
         
-        // Crear y descargar archivo
-        const blob = new Blob([fastaContent], { type: 'text/plain' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'sequences_export.fasta';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
+        // Copiar al portapapeles
+        navigator.clipboard.writeText(fastaContent).then(() => {
+            showNotification('Secuencias copiadas al portapapeles', 'success');
+        }).catch(err => {
+            console.error('Error copiando al portapapeles:', err);
+            // Fallback para navegadores que no soportan clipboard API
+            const textArea = document.createElement('textarea');
+            textArea.value = fastaContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            showNotification('Secuencias copiadas al portapapeles', 'success');
+        });
+    }
+    
+    function generateCustomChart() {
+        showNotification('Funcionalidad de gráficos personalizada en desarrollo', 'warning');
+        // TODO: Implementar generación de gráficos personalizados
+    }
+    
+    function exportToFASTA() {
+        if (!sequences.length) {
+            showNotification('No hay secuencias para exportar', 'error');
+            return;
+        }
+        
+        // Agregar estado de carga al botón
+        const exportButton = document.getElementById('export-fasta-btn') || 
+                           Array.from(document.querySelectorAll('button')).find(btn => 
+                               btn.textContent.includes('Exportar FASTA'));
+        
+        if (!exportButton) {
+            console.error('No se encontró el botón de exportar');
+            return;
+        }
+        
+        const originalHTML = exportButton.innerHTML;
+        exportButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exportando...';
+        exportButton.disabled = true;
+        
+        // Enviar secuencias al servidor para generar archivo
+        fetch('/export_fasta', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                sequences: sequences
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error ${response.status}: ${response.statusText}`);
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            // Crear URL para descarga
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            
+            // Generar nombre del archivo con timestamp
+            const now = new Date();
+            const timestamp = now.toISOString().slice(0,19).replace(/[:-]/g, '').replace('T', '_');
+            a.download = `genomics_freedom_export_${timestamp}.fasta`;
+            
+            // Agregar al DOM, hacer click y remover
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            // Limpiar URL
+            window.URL.revokeObjectURL(url);
+            
+            // Mostrar notificación de éxito
+            showNotification(`Archivo FASTA exportado: ${a.download}`, 'success');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error al exportar archivo FASTA: ' + error.message, 'error');
+        })
+        .finally(() => {
+            // Restaurar botón
+            exportButton.innerHTML = originalHTML;
+            exportButton.disabled = false;
+        });
     }
 });
 

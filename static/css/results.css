@@ -418,3 +418,1054 @@
 .notification.warning {
     background-color: #f39c12;
 }
+
+/* Estilos adicionales para results.css - Agregar al archivo existente */
+
+/* Estilos para el selector de secuencias en la calculadora de distancias */
+.form-control {
+    background-color: rgba(30, 30, 30, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    padding: 8px 12px;
+    color: white;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--accent-green);
+    box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
+}
+
+.form-control option {
+    background-color: rgba(30, 30, 30, 0.95);
+    color: white;
+    padding: 8px;
+}
+
+/* Estilos para la visualización de bases de ADN */
+.dna-base {
+    display: inline-block;
+    padding: 2px 4px;
+    margin: 1px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 0.9rem;
+    text-align: center;
+    min-width: 20px;
+    transition: all 0.2s ease;
+}
+
+.dna-base:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.dna-base.A {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.dna-base.T {
+    background-color: #3498db;
+    color: white;
+}
+
+.dna-base.C {
+    background-color: #f39c12;
+    color: white;
+}
+
+.dna-base.G {
+    background-color: #27ae60;
+    color: white;
+}
+
+.dna-base.N {
+    background-color: #95a5a6;
+    color: white;
+}
+
+/* Estilos para el resultado de distancia */
+#distance-result {
+    font-family: 'Courier New', monospace;
+    text-shadow: 0 0 10px currentColor;
+    transition: all 0.3s ease;
+}
+
+/* Estilos para los resultados de búsqueda de motivos */
+.motif-results {
+    animation: fadeInUp 0.5s ease;
+}
+
+.motif-results h4 {
+    border-bottom: 2px solid var(--accent-green);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.motif-results ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.motif-results li {
+    background-color: rgba(42, 157, 143, 0.1);
+    margin: 0.5rem 0;
+    padding: 0.8rem;
+    border-radius: 5px;
+    border-left: 3px solid var(--accent-green);
+    transition: all 0.3s ease;
+}
+
+.motif-results li:hover {
+    background-color: rgba(42, 157, 143, 0.2);
+    transform: translateX(5px);
+}
+
+/* Animaciones */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(42, 157, 143, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(42, 157, 143, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(42, 157, 143, 0);
+    }
+}
+
+/* Efecto de pulso para el resultado de distancia cuando cambia */
+.distance-highlight {
+    animation: pulse 1s;
+}
+
+/* Estilos mejorados para botones */
+.btn {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn:before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: width 0.6s, height 0.6s, top 0.6s, left 0.6s;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+}
+
+.btn:hover:before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Estilos para tooltips */
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 200px;
+    background-color: rgba(0, 0, 0, 0.9);
+    color: white;
+    text-align: center;
+    border-radius: 6px;
+    padding: 8px;
+    position: absolute;
+    z-index: 1000;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -100px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 0.8rem;
+}
+
+.tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 0.9) transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Estilos para las estadísticas por secuencia mejoradas */
+.sequence-stat-card-detailed {
+    background-color: rgba(30, 30, 30, 0.3);
+    border-radius: 10px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.sequence-stat-card-detailed:hover {
+    border-color: rgba(42, 157, 143, 0.5);
+    box-shadow: 0 4px 12px rgba(42, 157, 143, 0.2);
+}
+
+.main-stats-grid {
+    margin-bottom: 1.5rem;
+}
+
+.main-stat-card {
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.main-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    border-color: rgba(42, 157, 143, 0.3);
+}
+
+.base-composition-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1rem;
+}
+
+.base-stat-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.base-stat-card:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Animación para la aparición de estadísticas */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Estilos para el selector de secuencias */
+#sequence-stats-select {
+    background-color: rgba(30, 30, 30, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    padding: 10px 15px;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+#sequence-stats-select:focus {
+    outline: none;
+    border-color: var(--accent-green);
+    box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.2);
+}
+
+#sequence-stats-select option {
+    background-color: rgba(30, 30, 30, 0.95);
+    color: white;
+    padding: 10px;
+}
+
+/* Contenedor de estadísticas con transición suave */
+#sequence-stats-container {
+    transition: opacity 0.3s ease;
+}
+
+/* Estilos para las barras de progreso */
+.progress-bar {
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.8s ease;
+}
+
+/* Efectos especiales para hover en diferentes elementos */
+.stat-card:hover .stat-value {
+    text-shadow: 0 0 10px currentColor;
+}
+
+/* Responsive design para estadísticas */
+@media (max-width: 768px) {
+    .main-stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 0.8rem;
+    }
+    
+    .base-composition-grid {
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+        gap: 0.8rem;
+    }
+    
+    .sequence-stat-card-detailed {
+        padding: 1rem;
+    }
+    
+    .main-stat-value {
+        font-size: 1.4rem !important;
+    }
+}
+
+/* Estilo para el resumen comparativo */
+.stats-grid .stat-card {
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 1rem;
+    border-radius: 6px;
+    border-top: 3px solid var(--accent-green);
+    transition: all 0.3s ease;
+}
+
+.stats-grid .stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(42, 157, 143, 0.3);
+}
+
+/* Estilos para estados de carga */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+    position: relative;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid transparent;
+    border-top: 2px solid var(--accent-green);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Mejoras en la matriz de similitud */
+.matrix-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.matrix-cell {
+    background-color: rgba(30, 30, 30, 0.8);
+    padding: 8px;
+    text-align: center;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+}
+
+.matrix-cell.matrix-header {
+    background-color: var(--accent-green);
+    font-weight: bold;
+    color: white;
+}
+
+.matrix-cell:not(.matrix-header):hover {
+    background-color: rgba(42, 157, 143, 0.3);
+}
+
+/* Estilos para notificaciones */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: var(--accent-green);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification.error {
+    background-color: var(--primary-red);
+}
+
+.notification.warning {
+    background-color: #f39c12;
+}
+
+/* Estilos adicionales para results.css - Agregar al archivo existente */
+
+/* Estilos para el selector de secuencias en la calculadora de distancias */
+.form-control {
+    background-color: rgba(30, 30, 30, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    padding: 8px 12px;
+    color: white;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--accent-green);
+    box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.2);
+}
+
+.form-control option {
+    background-color: rgba(30, 30, 30, 0.95);
+    color: white;
+    padding: 8px;
+}
+
+/* Estilos para la visualización de bases de ADN */
+.dna-base {
+    display: inline-block;
+    padding: 2px 4px;
+    margin: 1px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 0.9rem;
+    text-align: center;
+    min-width: 20px;
+    transition: all 0.2s ease;
+}
+
+.dna-base:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.dna-base.A {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.dna-base.T {
+    background-color: #3498db;
+    color: white;
+}
+
+.dna-base.C {
+    background-color: #f39c12;
+    color: white;
+}
+
+.dna-base.G {
+    background-color: #27ae60;
+    color: white;
+}
+
+.dna-base.N {
+    background-color: #95a5a6;
+    color: white;
+}
+
+/* Estilos para el resultado de distancia */
+#distance-result {
+    font-family: 'Courier New', monospace;
+    text-shadow: 0 0 10px currentColor;
+    transition: all 0.3s ease;
+}
+
+/* Estilos para los resultados de búsqueda de motivos */
+.motif-results {
+    animation: fadeInUp 0.5s ease;
+}
+
+.motif-results h4 {
+    border-bottom: 2px solid var(--accent-green);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.motif-results ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.motif-results li {
+    background-color: rgba(42, 157, 143, 0.1);
+    margin: 0.5rem 0;
+    padding: 0.8rem;
+    border-radius: 5px;
+    border-left: 3px solid var(--accent-green);
+    transition: all 0.3s ease;
+}
+
+.motif-results li:hover {
+    background-color: rgba(42, 157, 143, 0.2);
+    transform: translateX(5px);
+}
+
+/* Animaciones */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(42, 157, 143, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(42, 157, 143, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(42, 157, 143, 0);
+    }
+}
+
+/* Efecto de pulso para el resultado de distancia cuando cambia */
+.distance-highlight {
+    animation: pulse 1s;
+}
+
+/* Estilos mejorados para botones */
+.btn {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn:before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: width 0.6s, height 0.6s, top 0.6s, left 0.6s;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+}
+
+.btn:hover:before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Estilos para tooltips */
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 200px;
+    background-color: rgba(0, 0, 0, 0.9);
+    color: white;
+    text-align: center;
+    border-radius: 6px;
+    padding: 8px;
+    position: absolute;
+    z-index: 1000;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -100px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 0.8rem;
+}
+
+.tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 0.9) transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Estilos para las estadísticas por secuencia mejoradas */
+.sequence-stat-card-detailed {
+    background-color: rgba(30, 30, 30, 0.3);
+    border-radius: 10px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.sequence-stat-card-detailed:hover {
+    border-color: rgba(42, 157, 143, 0.5);
+    box-shadow: 0 4px 12px rgba(42, 157, 143, 0.2);
+}
+
+.main-stats-grid {
+    margin-bottom: 1.5rem;
+}
+
+.main-stat-card {
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.main-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    border-color: rgba(42, 157, 143, 0.3);
+}
+
+.base-composition-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1rem;
+}
+
+.base-stat-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.base-stat-card:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Animación para la aparición de estadísticas */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Estilos para el selector de secuencias */
+#sequence-stats-select {
+    background-color: rgba(30, 30, 30, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    padding: 10px 15px;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+#sequence-stats-select:focus {
+    outline: none;
+    border-color: var(--accent-green);
+    box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.2);
+}
+
+#sequence-stats-select option {
+    background-color: rgba(30, 30, 30, 0.95);
+    color: white;
+    padding: 10px;
+}
+
+/* Contenedor de estadísticas con transición suave */
+#sequence-stats-container {
+    transition: opacity 0.3s ease;
+}
+
+/* Estilos para las barras de progreso */
+.progress-bar {
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.8s ease;
+}
+
+/* Efectos especiales para hover en diferentes elementos */
+.stat-card:hover .stat-value {
+    text-shadow: 0 0 10px currentColor;
+}
+
+/* Responsive design para estadísticas */
+@media (max-width: 768px) {
+    .main-stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 0.8rem;
+    }
+    
+    .base-composition-grid {
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+        gap: 0.8rem;
+    }
+    
+    .sequence-stat-card-detailed {
+        padding: 1rem;
+    }
+    
+    .main-stat-value {
+        font-size: 1.4rem !important;
+    }
+}
+
+/* Estilos para el panel de alineamiento múltiple */
+.alignment-stat-card {
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.alignment-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    border-color: rgba(42, 157, 143, 0.3);
+}
+
+.alignment-stat-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--accent-green);
+    margin-bottom: 0.5rem;
+}
+
+.alignment-stat-label {
+    color: var(--text-gray);
+    font-size: 0.9rem;
+}
+
+/* Estilos para la matriz dinámica */
+.dynamic-matrix-grid .matrix-cell {
+    background-color: rgba(30, 30, 30, 0.8);
+    padding: 8px 4px;
+    text-align: center;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+    min-height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dynamic-matrix-grid .matrix-cell.matrix-header {
+    background-color: var(--accent-blue);
+    font-weight: bold;
+    color: white;
+    font-size: 0.7rem;
+}
+
+.dynamic-matrix-grid .matrix-cell:not(.matrix-header):hover {
+    transform: scale(1.05);
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Estilos para el contenedor de alineamiento */
+#alignment-content {
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+#alignment-content::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+#alignment-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+#alignment-content::-webkit-scrollbar-thumb {
+    background: var(--accent-green);
+    border-radius: 4px;
+}
+
+#alignment-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(42, 157, 143, 0.8);
+}
+
+/* Estilos para el slider de similitud */
+#similarity-threshold {
+    background: transparent;
+    border: none;
+    outline: none;
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(to right, var(--primary-red) 0%, #f1c40f 50%, var(--accent-green) 100%);
+}
+
+#similarity-threshold::-webkit-slider-thumb {
+    appearance: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: var(--accent-green);
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+#similarity-threshold::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.3);
+}
+
+#similarity-threshold::-moz-range-thumb {
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: var(--accent-green);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Animaciones para el alineamiento */
+@keyframes alignmentFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#alignment-content > div {
+    animation: alignmentFadeIn 0.5s ease;
+}
+
+/* Estilos responsivos para el alineamiento */
+@media (max-width: 768px) {
+    .dynamic-matrix-grid .matrix-cell {
+        padding: 4px 2px;
+        font-size: 0.7rem;
+        min-height: 25px;
+    }
+    
+    .alignment-stat-value {
+        font-size: 1.4rem;
+    }
+    
+    #alignment-content {
+        font-size: 0.8rem;
+    }
+}
+
+/* Efectos especiales para bases en el alineamiento */
+.alignment-base {
+    transition: all 0.2s ease;
+    padding: 1px 2px;
+    border-radius: 2px;
+}
+
+.alignment-base:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+/* Estilos para el consenso */
+.consensus-position {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin: 0 1px;
+    vertical-align: middle;
+}
+
+.consensus-conserved {
+    background-color: var(--accent-green);
+}
+
+.consensus-partial {
+    background-color: #f1c40f;
+}
+
+.consensus-variable {
+    background-color: var(--primary-red);
+}
+
+/* Estilo para loading en el alineamiento */
+#generate-alignment-btn.loading {
+    position: relative;
+    color: transparent;
+}
+
+#generate-alignment-btn.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border: 2px solid transparent;
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Estilos para estados de carga */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+    position: relative;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid transparent;
+    border-top: 2px solid var(--accent-green);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Mejoras en la matriz de similitud */
+.matrix-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.matrix-cell {
+    background-color: rgba(30, 30, 30, 0.8);
+    padding: 8px;
+    text-align: center;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+}
+
+.matrix-cell.matrix-header {
+    background-color: var(--accent-green);
+    font-weight: bold;
+    color: white;
+}
+
+.matrix-cell:not(.matrix-header):hover {
+    background-color: rgba(42, 157, 143, 0.3);
+}
+
+/* Estilos para notificaciones */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: var(--accent-green);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification.error {
+    background-color: var(--primary-red);
+}
+
+.notification.warning {
+    background-color: #f39c12;
+}
