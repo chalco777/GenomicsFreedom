@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Obtener datos de las secuencias y distancias
+    // Obtener datos de las secuencias y distancias obtenidos desde el flask
     const sequencesDataEl = document.getElementById('sequences-data');
     const distanceDataEl = document.getElementById('distance-data');
     
@@ -59,11 +59,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function performSimpleAlignment() {
-        const maxLength = Math.max(...sequences.map(s => s.sequence.length));
-        const alignedSequences = [];
-        
+        //crea un array con longitudes de secuencias y escoge la de mayor tamaño
+        const maxLength = Math.max(...sequences.map(s => s.sequence.length)); 
+        const alignedSequences = []; //aligned sequecnes contendra objeto y cada objeto tiene tres propiedades definidas por llaves
+
         sequences.forEach(seq => {
+            //rellena con guiones - al final de la secuencia si es más corta que maxLength
             const paddedSeq = seq.sequence.padEnd(maxLength, '-');
+            //guarda el objeto con su titul, la nueva sec, y su longitud original
             alignedSequences.push({
                 title: seq.title,
                 sequence: paddedSeq,
@@ -81,33 +84,38 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function calculateConservedPositions(alignedSeqs) {
-        const length = alignedSeqs[0].sequence.length;
+        const length = alignedSeqs[0].sequence.length; 
+        //toma longitud de primera seq como referencia
         let conserved = 0;
-        
+        //FULL PROGRAMACIÓN FUNCIONAL!!!    
         for (let i = 0; i < length; i++) {
+            //para todas las secuencias, me da un array con sus valores en la posición i
             const bases = alignedSeqs.map(seq => seq.sequence[i]);
+            //PARA todas las bases , se queda solo con las diferentes de guion y las hace unicas, (maximo puede tener 4 valores)
             const uniqueBases = new Set(bases.filter(base => base !== '-'));
             
             if (uniqueBases.size === 1 && !uniqueBases.has('-')) {
-                conserved++;
+                conserved++; //si hay un solo caracter unico y no es un guion, cuenta como conservado
             }
         }
         
-        return conserved;
+        return conserved; //retorna el numero de posiciones conservadas
     }
     
     function calculateAverageSimilarity(alignedSeqs) {
+        //me da el PROMEDIO total de similitudes entre todas las PAREJAS POSIBLES de secuencias alineadas
         let totalSimilarity = 0;
         let comparisons = 0;
         
         for (let i = 0; i < alignedSeqs.length; i++) {
             for (let j = i + 1; j < alignedSeqs.length; j++) {
+                //compara la similutud sin incluir pares iguales
                 const similarity = calculatePairwiseSimilarity(
                     alignedSeqs[i].sequence, 
                     alignedSeqs[j].sequence
                 );
-                totalSimilarity += similarity;
-                comparisons++;
+                totalSimilarity += similarity; //suma
+                comparisons++; //cuenta, para luego dividir por la suma y sacar el promedio
             }
         }
         
@@ -115,6 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function calculatePairwiseSimilarity(seq1, seq2) {
+        //Calcula cuánto se parecen dos secuencias alineadas, posición por posición. Solo considera posiciones sin guiones.
         let matches = 0;
         let validPositions = 0;
         
@@ -131,7 +140,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function calculateTotalGaps(alignedSeqs) {
+        // Cuenta el número total de guiones en todas las secuencias alineadas
         return alignedSeqs.reduce((total, seq) => {
+                            //expresion regular que retorna una lista con todos los guiones, luego se cuenta el tamaño de esa lista y se suma con todas las demas listas de todas las secuencias
             return total + (seq.sequence.match(/-/g) || []).length;
         }, 0);
     }
@@ -139,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function displayAlignment(alignment) {
         const alignmentContent = document.getElementById('alignment-content');
         const viewSelect = document.getElementById('alignment-view-select');
-        
+        //leo el valor del selector
         const viewType = viewSelect.value;
         let html = '';
         
@@ -156,15 +167,19 @@ document.addEventListener('DOMContentLoaded', function() {
             default:
                 html = generateAlignmentPreview(alignment);
         }
-        
+        //inserta el html dentro del elemento con id=alignmentContent, reemplazando lo q hubiese
         alignmentContent.innerHTML = html;
     }
     
     function generateAlignmentPreview(alignment) {
+        //genera una vista previa del alineamiento mostrando los primeros 50 bp de cada secuencia
         const previewLength = 50;
+        //aplica estilo al html que se mostrará
         let html = '<div style="margin-bottom: 1rem;">';
         html += '<div style="color: var(--accent-green); font-weight: bold; margin-bottom: 0.5rem;">Vista Previa del Alineamiento (primeros 50 bp):</div>';
         
+        //para cada secuencia de alignment, toma su secuencia y la corta a los primeros 50 bp
+        //Recorre cada objeto seq dentro de alignment.sequences.
         alignment.sequences.forEach((seq, index) => {
             const preview = seq.sequence.substring(0, previewLength);
             html += `<div style="margin-bottom: 0.3rem;">`;
@@ -193,9 +208,11 @@ document.addEventListener('DOMContentLoaded', function() {
             html += `<div style="color: var(--text-gray); margin-bottom: 0.8rem; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Posiciones ${start + 1}-${Math.min(start + chunkSize, alignment.length)}:</div>`;
             
             alignment.sequences.forEach((seq, index) => {
+                //Para cada secuencia, extrae el fragmento de longitud 80 (o menos, al final).
+                
                 const chunk = seq.sequence.substring(start, start + chunkSize);
                 const shortTitle = seq.title.length > 15 ? seq.title.substring(0, 15) + '...' : seq.title;
-                
+                //Línea de la secuencia con fuente monoespaciada, muestra el título corto en azul y, al pasar el ratón, el title completo.
                 html += `<div style="margin-bottom: 0.4rem; font-family: 'Courier New', monospace;">`;
                 html += `<span style="color: var(--accent-blue); width: 140px; display: inline-block; font-size: 0.9rem; font-weight: bold;" title="${seq.title}">${shortTitle}:</span>`;
                 html += `<span style="letter-spacing: 1px; word-break: break-all;">${formatAlignmentSequence(chunk)}</span>`;
@@ -219,7 +236,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const end = Math.min(start + chunkSize, alignment.length);
         
         for (let pos = start; pos < end; pos++) {
+            //para cada secuencia del alineamiento, toma su base en la posición pos
             const bases = alignment.sequences.map(seq => seq.sequence[pos]);
+            //toma las bases unicas, filtra y retiene las bases que no son guiones
             const uniqueBases = new Set(bases.filter(base => base !== '-'));
             
             if (uniqueBases.size === 1 && !uniqueBases.has('-')) {
@@ -366,6 +385,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function formatAlignmentSequence(sequence) {
+        //aplica a cada base de la secuencia un color dependiendo de su tipo
         return sequence.split('').map(base => {
             if (base === '-') {
                 return `<span style="color: var(--text-gray);">-</span>`;
