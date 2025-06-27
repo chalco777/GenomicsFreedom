@@ -129,12 +129,26 @@
                         {% if distance_matrix and sequences|length > 1 %}
                         <div style="margin-top: 1.5rem;">
                             <h4>Calculadora de Distancia Genética</h4>
+                            
+                            <!-- Selector de método de distancia -->
+                            <div style="margin-bottom: 1rem;">
+                                <label for="distance-method" style="display: block; margin-bottom: 0.5rem; color: var(--text-gray);">
+                                    Método de cálculo:
+                                </label>
+                                <select id="distance-method" class="form-control" style="max-width: 300px; margin: 0 auto;">
+                                    <option value="precalculated">BioPython (Precalculado)</option>
+                                    <option value="hamming">Distancia de Hamming</option>
+                                    <option value="identity">Similitud de Identidad</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Selectores de secuencias -->
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; max-width: 500px; margin-left: auto; margin-right: auto;">
                                 <div>
                                     <label for="seq-select-1" style="display: block; margin-bottom: 0.5rem; color: var(--text-gray);">Secuencia 1:</label>
                                     <select id="seq-select-1" class="form-control" style="width: 100%;">
                                         {% for seq in sequences %}
-                                        <option value="{{ seq.title }}">{{ seq.title }}</option>
+                                        <option value="{{ loop.index0 }}">{{ seq.title }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -142,20 +156,31 @@
                                     <label for="seq-select-2" style="display: block; margin-bottom: 0.5rem; color: var(--text-gray);">Secuencia 2:</label>
                                     <select id="seq-select-2" class="form-control" style="width: 100%;">
                                         {% for seq in sequences %}
-                                        <option value="{{ seq.title }}" {% if loop.index == 2 %}selected{% endif %}>{{ seq.title }}</option>
+                                        <option value="{{ loop.index0 }}" {% if loop.index == 2 %}selected{% endif %}>{{ seq.title }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
                             </div>
                             
+                            <!-- Resultado con descripción del método -->
                             <div style="background-color: rgba(42, 157, 143, 0.2); padding: 15px; border-radius: 8px; border-left: 4px solid var(--accent-green); margin-top: 1rem;">
                                 <div style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
                                     <span style="color: var(--text-gray); font-size: 1.1rem;">Distancia genética:</span>
                                     <span id="distance-result" style="color: var(--accent-green); font-size: 1.5rem; font-weight: bold;">-</span>
                                 </div>
-                                <p style="color: var(--text-gray); font-size: 0.9rem; margin-top: 0.5rem; text-align: center;">
-                                    <i class="fas fa-info-circle"></i> Valores más bajos indican mayor similitud genética
-                                </p>
+                                <div id="method-description" style="color: var(--text-gray); font-size: 0.9rem; margin-top: 0.5rem; text-align: center;">
+                                    <i class="fas fa-info-circle"></i> <span id="method-text">Valores más bajos indican mayor similitud genética</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Comparación de métodos (opcional) -->
+                            <div id="comparison-panel" style="margin-top: 1rem; background-color: rgba(30,30,30,0.3); padding: 15px; border-radius: 8px; display: none;">
+                                <h5 style="color: var(--text-gray); margin-bottom: 1rem; text-align: center;">
+                                    <i class="fas fa-chart-line"></i> Comparación de Métodos
+                                </h5>
+                                <div id="comparison-results" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                                    <!-- Los resultados de comparación se llenarán aquí -->
+                                </div>
                             </div>
                         </div>
                         {% else %}
