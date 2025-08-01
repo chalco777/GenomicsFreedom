@@ -133,21 +133,18 @@ GenomicsFreedom/
 
 ---
 
+## 📚 Software References
+- [Flask](https://flask.palletsprojects.com/)
+- [Biopython](https://biopython.org/)
+- [NumPy](https://numpy.org/)
+- [Matplotlib](https://matplotlib.org/) & [Seaborn](https://seaborn.pydata.org/)
+- [MUSCLE](https://www.drive5.com/muscle/)
+
+---
+
 ## 🤝 Contributing
 Contributions are welcome! Open an issue or submit a pull request with your ideas for new features, performance improvements or bug fixes.
 
 Enjoy exploring genomic sequences with GenomicsFreedom!
 
 ---
-
-### Citations
-- Sequence input handling (manual and FASTA)​:codex-file-citation[codex-file-citation]{line_range_start=48 line_range_end=67 path=app.py git_url="https://github.com/chalco777/GenomicsFreedom/blob/main/app.py#L48-L67"}​
-- Global statistics and histogram generation​:codex-file-citation[codex-file-citation]{line_range_start=88 line_range_end=97 path=app.py git_url="https://github.com/chalco777/GenomicsFreedom/blob/main/app.py#L88-L97"}​​:codex-file-citation[codex-file-citation]{line_range_start=35 line_range_end=80 path=templates/results.html git_url="https://github.com/chalco777/GenomicsFreedom/blob/main/templates/results.html#L35-L80"}​
-- Per-sequence statistics panel​:codex-file-citation[codex-file-citation]{line_range_start=84 line_range_end=132 path=templates/results.html git_url="https://github.com/chalco777/GenomicsFreedom/blob/main/templates/results.html#L84-L132"}​
-- Sequence visualization with export options​:codex-file-citation[codex-file-citation]{line_range_start=135 line_range_end=165 path=templates/results.html git_url="https://github.com/chalco777/GenomicsFreedom/blob/main/templates/results.html#L135-L165"}​​:codex-file-citation[codex-file-citation]{line_range_start=528 line_range_end=564 path=app.py git_url="https://github.com/chalco777/GenomicsFreedom/blob/main/app.py#L528-L564"}​
-- Multiple alignment and similarity matrix​:codex-file-citation[codex-file-citation]{line_range_start=168 line_range_end=247 path=templates/results.html git_url="https://github.com/chalco777/GenomicsFreedom/blob/main/templates/results.html#L168-L247"}​
-- Phylogenetic tree and distance calculator​:codex-file-citation[codex-file-citation]{line_range_start=99 line_range_end=105 path=app.py git_url="https://github.com/chalco777/GenomicsFreedom/blob/main/app.py#L99-L105"}​​:codex-file-citation[codex-file-citation]{line_range_start=250 line_range_end=299 path=templates/results.html git_url="https://github.com/chalco777/GenomicsFreedom/blob/main/templates/results.html#L250-L299"}​
-- Motif search panel​:codex-file-citation[codex-file-citation]{line_range_start=302 line_range_end=309 path=templates/results.html git_url="https://github.com/chalco777/GenomicsFreedom/blob/main/templates/results.html#L302-L309"}​
-- Project dependencies (Flask, Biopython, NumPy, Matplotlib)​:codex-file-citation[codex-file-citation]{line_range_start=1 line_range_end=4 path=requirements.txt git_url="https://github.com/chalco777/GenomicsFreedom/blob/main/requirements.txt#L1-L4"}​
-
-
