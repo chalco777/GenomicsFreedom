@@ -2,6 +2,8 @@
 
 GenomicsFreedom is an interactive web application built with **Flask** for exploring and visualizing genomic sequences. The project combines basic analyses (length, GC content, base distribution) with tools for multiple alignment, phylogenetic tree generation, and motif search, all within a modern interface.
 
+![Input Panel](docs/first_view.png)
+
 ---
 
 ## 🚀 Features
@@ -81,8 +83,8 @@ GenomicsFreedom is an interactive web application built with **Flask** for explo
    pip install -r requirements.txt
    ```  
 4. **Verify MUSCLE**
-* The app expects muscle.exe in bin/.
-* On Linux/Mac, install MUSCLE and adjust MUSCLE_PATH in app.py if needed.
+* The app expects `muscle.exe` in `bin/`.
+* On Linux/Mac, install MUSCLE and adjust `MUSCLE_PATH` in `app.py` if needed.
 * If MUSCLE is unavailable, a simplified distance‑based tree is generated.
 
 ---
@@ -123,21 +125,12 @@ GenomicsFreedom/
 
 ---
 
-## 🧰 Technologies
-* Flask
-* Biopython
-* NumPy
-* Matplotlib & Seaborn
-* HTML5, CSS3, JavaScript
-* MUSCLE
-
----
-
-## 📚 Software References
+## 📚 Technologies & Software References
 - [Flask](https://flask.palletsprojects.com/)
 - [Biopython](https://biopython.org/)
 - [NumPy](https://numpy.org/)
 - [Matplotlib](https://matplotlib.org/) & [Seaborn](https://seaborn.pydata.org/)
+- HTML5, CSS3, JavaScript
 - [MUSCLE](https://www.drive5.com/muscle/)
 
 ---
