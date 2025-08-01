@@ -145,5 +145,3 @@ adrian.chalco@upch.pe
 
 Benjamín Hurtado Berrocal
 benjamin.hurtado@upch.pe
-
----
