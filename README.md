@@ -75,16 +75,17 @@ GenomicsFreedom is an interactive web application built with **Flask** for explo
    ```bash
    python -m venv .venv
    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-
    ```
 3. **Install dependencies**
-  ```bash
-  pip install -r requirements.txt
-  ```  
+   ```bash
+   pip install -r requirements.txt
+   ```  
 4. **Verify MUSCLE**
 * The app expects muscle.exe in bin/.
 * On Linux/Mac, install MUSCLE and adjust MUSCLE_PATH in app.py if needed.
 * If MUSCLE is unavailable, a simplified distance‑based tree is generated.
+
+---
 
 ## ▶️ Usage
 
@@ -96,6 +97,8 @@ GenomicsFreedom is an interactive web application built with **Flask** for explo
 3. Enter sequences manually or upload a FASTA file.
 4. Click “Run Analysis” to generate statistics and visualizations.
 5. Explore the results dashboard: visualization, alignment, distance calculator, motif search, etc.
+
+---
 
 ## 📂 Project Structure
 ```
@@ -117,6 +120,9 @@ GenomicsFreedom/
     ├── index.html       # Entry form
     └── results.html     # Results dashboard
 ```
+
+---
+
 ## 🧰 Technologies
 * Flask
 * Biopython
@@ -125,10 +131,14 @@ GenomicsFreedom/
 * HTML5, CSS3, JavaScript
 * MUSCLE
 
+---
+
 ## 🤝 Contributing
 Contributions are welcome! Open an issue or submit a pull request with your ideas for new features, performance improvements or bug fixes.
 
 Enjoy exploring genomic sequences with GenomicsFreedom!
+
+---
 
 ### Citations
 - Sequence input handling (manual and FASTA)​:codex-file-citation[codex-file-citation]{line_range_start=48 line_range_end=67 path=app.py git_url="https://github.com/chalco777/GenomicsFreedom/blob/main/app.py#L48-L67"}​
