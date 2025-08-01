@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en"></html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GenomicsFreedom - Exploración Genómica Creativa</title>
+    <title>GenomicsFreedom - Creative Genomic Exploration</title>
     
     # <!--Hoja de estilos local: Flask la busca en /static/css/styles.css -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
@@ -16,7 +16,7 @@
     <!-- Cabecera inicial, titulo -->
     <header>
         <h1 class="logo">GenomicsFreedom</h1>
-        <p class="tagline">Exploración libre de patrones genómicos más allá de las reglas convencionales</p>
+        <p class="tagline">Free exploration of genomic patterns beyond conventional rules</p>
     </header>
 
     <!-- Sección "About Us", <section> para dividir tu documento en bloques temáticos bien definidos -->
@@ -24,70 +24,70 @@
     <!-- Header usa icono de ADN-->
         <h2><i class="fas fa-dna"></i> About Us</h2>
         <div class="about-content">
-            <p>Bienvenido a <span class="highlight">GenomicsFreedom</span>, una plataforma innovadora diseñada para la enseñanza de genómica y la exploración creativa de secuencias genéticas.</p>
+            <p>Welcome to <span class="highlight">GenomicsFreedom</span>, an innovative platform designed for teaching genomics and creative exploration of genetic sequences.</p>
             
-            <p>Nuestra misión es proporcionar un entorno donde puedas no solo aprender los principios fundamentales del análisis genómico, sino también <span class="highlight">jugar con parámetros y descubrir nuevos patrones</span> que no podrías identificar siguiendo reglas estrictas y convencionales.</p>
+            <p>Our mission is to provide an environment where you can not only learn the fundamental principles of genomic analysis, but also <span class="highlight">play with parameters and discover new patterns</span> that you might not identify by following strict and conventional rules.</p>
             
-            <p>A diferencia de los enfoques tradicionales que limitan el análisis a lecturas específicas, en GenomicsFreedom fomentamos la experimentación. Por ejemplo, aquí puedes aplicar distribuciones de k-mers no solo a los reads, sino también a <span class="highlight">genes completos</span>, permitiendo descubrimientos que los métodos convencionales podrían pasar por alto.</p>
+            <p>Unlike traditional approaches that limit analysis to specific reads, at GenomicsFreedom we encourage experimentation. For example, here you can apply k-mer distributions not only to reads, but also to <span class="highlight">entire genes</span>, enabling discoveries that conventional methods might overlook.</p>
             
-            <p>Nuestra plataforma combina herramientas profesionales con una interfaz elegante e intuitiva, diseñada para investigadores, estudiantes y entusiastas de la genómica que buscan una experiencia de análisis más flexible y creativa.</p>
+            <p>Our platform combines professional tools with an elegant and intuitive interface, designed for researchers, students, and genomics enthusiasts seeking a more flexible and creative analysis experience.</p>
         </div>
     </section>
 
     <!-- Sección de entrada de secuencias -->
     <section id="sequence-input">
-        <h2><i class="fas fa-code"></i> Ingresar Secuencias</h2>
+        <h2><i class="fas fa-code"></i> Enter Sequences</h2>
         <!--    ENVIAlo a la ruta /analyze, enctype le indica que empaquete los campos de texto y el file en distitnas partes dentro de la petición-->
         <form action="/analyze" method="POST" enctype="multipart/form-data">
             <div class="sequence-input-container">
                 <!-- Entrada manual -->
                 <div class="input-method">
-                    <h3>Ingreso Manual</h3>
+                    <h3>Manual Entry</h3>
                     
                     <div id="manual-sequences">
                         <div class="sequence-entry">
                             <div class="form-group">
-                                <label for="sequence-title">Título de la Secuencia</label>
-                                <input type="text" name="manual_titles[]" placeholder="Ej: Gen BRCA1 humano">
+                                <label for="sequence-title">Sequence Title</label>
+                                <input type="text" name="manual_titles[]" placeholder="E.g.: Human BRCA1 gene">
                             </div>
                             
                             <div class="form-group">
-                                <label for="sequence-data">Secuencia Genética (ADN)</label>
-                                <textarea name="manual_sequences[]" placeholder="Ingresa la secuencia de nucleótidos (A, T, C, G)..."></textarea>
+                                <label for="sequence-data">Genetic Sequence (DNA)</label>
+                                <textarea name="manual_sequences[]" placeholder="Enter the nucleotide sequence (A, T, C, G)..."></textarea>
                             </div>
                         </div>
                     </div>
                     
                     <div class="action-buttons">
                         <button type="button" class="btn btn-secondary" id="add-sequence">
-                            <i class="fas fa-plus"></i> Añadir Otra Secuencia
+                            <i class="fas fa-plus"></i> Add Another Sequence
                         </button>
                     </div>
                 </div>
                 
                 <!-- Carga de archivo -->
                 <div class="input-method">
-                    <h3>Cargar Archivo FASTA</h3>
+                    <h3>Upload FASTA File</h3>
                     
                     <div class="form-group">
-                        <label for="fasta-file">Seleccionar archivo .fasta</label>
+                        <label for="fasta-file">Select .fasta file</label>
                         <input type="file" id="fasta-file" name="fasta_file" accept=".fasta,.fa">
                     </div>
                     
                     <div class="form-group">
-                        <label for="file-content">Vista Previa del Archivo</label>
-                        <textarea id="file-content" readonly placeholder="El contenido del archivo FASTA aparecerá aquí..."></textarea>
+                        <label for="file-content">File Preview</label>
+                        <textarea id="file-content" readonly placeholder="The content of the FASTA file will appear here..."></textarea>
                     </div>
                     
                     <p style="color: var(--text-gray); margin-top: 1rem;">
-                        <i class="fas fa-info-circle"></i> Formatos soportados: FASTA (.fasta, .fa)
+                        <i class="fas fa-info-circle"></i> Supported formats: FASTA (.fasta, .fa)
                     </p>
                 </div>
             </div>
             
             <div class="action-buttons" style="margin-top: 2rem; justify-content: center;">
                 <button type="submit" class="btn btn-primary" id="execute-btn" style="padding: 15px 40px; font-size: 1.2rem;">
-                    <i class="fas fa-play"></i> Ejecutar Análisis
+                    <i class="fas fa-play"></i> Run Analysis
                 </button>
             </div>
         </form>
@@ -95,22 +95,22 @@
 
     <!-- Sección de características adicionales -->
     <section id="features">
-        <h2><i class="fas fa-flask"></i> Nuestras Herramientas</h2>
+        <h2><i class="fas fa-flask"></i> Our Tools</h2>
         
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
             <div style="background-color: rgba(42, 157, 143, 0.1); padding: 1.5rem; border-radius: 10px; border-left: 4px solid var(--accent-green);">
-                <h3 style="color: var(--accent-green); margin-bottom: 1rem;"><i class="fas fa-chart-bar"></i> Análisis K-mer</h3>
-                <p>Distribución avanzada de k-mers aplicable a reads y genes completos para descubrir patrones ocultos.</p>
+                <h3 style="color: var(--accent-green); margin-bottom: 1rem;"><i class="fas fa-chart-bar"></i> K-mer Analysis</h3>
+                <p>Advanced k-mer distribution applicable to reads and entire genes to discover hidden patterns.</p>
             </div>
             
             <div style="background-color: rgba(69, 123, 157, 0.1); padding: 1.5rem; border-radius: 10px; border-left: 4px solid var(--accent-blue);">
-                <h3 style="color: var(--accent-blue); margin-bottom: 1rem;"><i class="fas fa-search"></i> Búsqueda de Motivos</h3>
-                <p>Identifica motivos genéticos y secuencias regulatorias con algoritmos personalizables.</p>
+                <h3 style="color: var(--accent-blue); margin-bottom: 1rem;"><i class="fas fa-search"></i> Motif Search</h3>
+                <p>Identify genetic motifs and regulatory sequences with customizable algorithms.</p>
             </div>
             
             <div style="background-color: rgba(106, 76, 147, 0.1); padding: 1.5rem; border-radius: 10px; border-left: 4px solid var(--accent-purple);">
-                <h3 style="color: var(--accent-purple); margin-bottom: 1rem;"><i class="fas fa-align-left"></i> Alineamiento</h3>
-                <p>Herramientas de alineamiento múltiple con visualización de matrices de similitud.</p>
+                <h3 style="color: var(--accent-purple); margin-bottom: 1rem;"><i class="fas fa-align-left"></i> Alignment</h3>
+                <p>Multiple alignment tools with similarity matrix visualization.</p>
             </div>
         </div>
     </section>

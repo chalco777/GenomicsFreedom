@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Mostrar estado de carga
         const originalHTML = generateBtn.innerHTML;
-        generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
+        generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
         generateBtn.disabled = true;
         
         // Simular procesamiento
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
             updateAlignmentStats(alignment);
             
             alignmentStats.style.display = 'block';
-            showNotification('Alineamiento múltiple generado exitosamente', 'success');
+            showNotification('Multiple alignment generated successfully', 'success');
             
             generateBtn.innerHTML = originalHTML;
             generateBtn.disabled = false;
@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const previewLength = 50;
         //aplica estilo al html que se mostrará
         let html = '<div style="margin-bottom: 1rem;">';
-        html += '<div style="color: var(--accent-green); font-weight: bold; margin-bottom: 0.5rem;">Vista Previa del Alineamiento (primeros 50 bp):</div>';
+        html += '<div style="color: var(--accent-green); font-weight: bold; margin-bottom: 0.5rem;">Alignment Preview (first 50 bp):</div>';
         
         //para cada secuencia de alignment, toma su secuencia y la corta a los primeros 50 bp
         //Recorre cada objeto seq dentro de alignment.sequences.
@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (alignment.length > previewLength) {
             html += `<div style="color: var(--text-gray); margin-top: 0.5rem; font-style: italic;">`;
-            html += `... y ${alignment.length - previewLength} posiciones más`;
+            html += `... and ${alignment.length - previewLength} more positions`;
             html += `</div>`;
         }
         
@@ -201,11 +201,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function generateFullAlignment(alignment) {
         const chunkSize = 80;
         let html = '<div>';
-        html += '<div style="color: var(--accent-green); font-weight: bold; margin-bottom: 1rem;">Alineamiento Completo:</div>';
+        html += '<div style="color: var(--accent-green); font-weight: bold; margin-bottom: 1rem;">Full Alignment:</div>';
         
         for (let start = 0; start < alignment.length; start += chunkSize) {
             html += `<div style="margin-bottom: 2rem; background-color: rgba(30, 30, 30, 0.3); padding: 1rem; border-radius: 5px;">`;
-            html += `<div style="color: var(--text-gray); margin-bottom: 0.8rem; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Posiciones ${start + 1}-${Math.min(start + chunkSize, alignment.length)}:</div>`;
+            html += `<div style="color: var(--text-gray); margin-bottom: 0.8rem; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Positions ${start + 1}-${Math.min(start + chunkSize, alignment.length)}:</div>`;
             
             alignment.sequences.forEach((seq, index) => {
                 //Para cada secuencia, extrae el fragmento de longitud 80 (o menos, al final).
@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             html += `<div style="margin-top: 0.8rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.5rem;">`;
-            html += `<span style="color: var(--text-gray); width: 140px; display: inline-block; font-size: 0.9rem;">Conservación:</span>`;
+            html += `<span style="color: var(--text-gray); width: 140px; display: inline-block; font-size: 0.9rem;">Conservation:</span>`;
             html += `<span style="letter-spacing: 1px;">${generateConservationLine(alignment, start, chunkSize)}</span>`;
             html += `</div>`;
             
@@ -256,41 +256,41 @@ document.addEventListener('DOMContentLoaded', function() {
     function generateConsensusView(alignment) {
         const consensus = calculateConsensusSequence(alignment);
         let html = '<div>';
-        html += '<div style="color: var(--accent-green); font-weight: bold; margin-bottom: 1rem;">Secuencia Consenso:</div>';
+        html += '<div style="color: var(--accent-green); font-weight: bold; margin-bottom: 1rem;">Consensus Sequence:</div>';
         
         html += `<div style="background-color: rgba(42, 157, 143, 0.1); padding: 1rem; border-radius: 5px; margin-bottom: 1rem;">`;
-        html += `<div style="color: var(--accent-green); font-weight: bold; margin-bottom: 0.5rem;">Consenso:</div>`;
+        html += `<div style="color: var(--accent-green); font-weight: bold; margin-bottom: 0.5rem;">Consensus:</div>`;
         
         const formattedConsensus = formatConsensusWithLineBreaks(consensus.sequence, 80);
         html += `<div style="letter-spacing: 2px; font-size: 1.1rem; word-break: break-all; white-space: pre-wrap; font-family: 'Courier New', monospace; line-height: 1.8;">${formattedConsensus}</div>`;
         html += `</div>`;
         
         html += `<div style="margin-top: 1rem; background-color: rgba(30, 30, 30, 0.3); padding: 1rem; border-radius: 5px;">`;
-        html += `<div style="color: var(--text-gray); margin-bottom: 0.5rem; font-weight: bold;">Estadísticas del Consenso:</div>`;
+        html += `<div style="color: var(--text-gray); margin-bottom: 0.5rem; font-weight: bold;">Consensus Statistics:</div>`;
         
         const stats = calculateConsensusStats(consensus);
         html += `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1rem;">`;
         html += `<div style="text-align: center;">`;
         html += `<div style="font-size: 1.5rem; font-weight: bold; color: var(--accent-green);">${stats.fullyConserved}</div>`;
-        html += `<div style="font-size: 0.9rem; color: var(--text-gray);">Posiciones 100% conservadas</div>`;
+        html += `<div style="font-size: 0.9rem; color: var(--text-gray);">100% conserved positions</div>`;
         html += `</div>`;
         html += `<div style="text-align: center;">`;
         html += `<div style="font-size: 1.5rem; font-weight: bold; color: #f1c40f">${stats.partiallyConserved}</div>`;
-        html += `<div style="font-size: 0.9rem; color: var(--text-gray);">Posiciones >50% conservadas</div>`;
+        html += `<div style="font-size: 0.9rem; color: var(--text-gray);">>50% conserved positions</div>`;
         html += `</div>`;
         html += `<div style="text-align: center;">`;
         html += `<div style="font-size: 1.5rem; font-weight: bold; color: var(--primary-red);">${stats.variable}</div>`;
-        html += `<div style="font-size: 0.9rem; color: var(--text-gray);">Posiciones variables</div>`;
+        html += `<div style="font-size: 0.9rem; color: var(--text-gray);">Variable positions</div>`;
         html += `</div>`;
         html += `</div>`;
         
         html += `<div style="margin-top: 1rem;">`;
-        html += `<div style="color: var(--text-gray); margin-bottom: 0.5rem;">Leyenda:</div>`;
+        html += `<div style="color: var(--text-gray); margin-bottom: 0.5rem;">Legend:</div>`;
         html += `<div style="font-size: 0.9rem; line-height: 1.6;">`;
-        html += `<span style="color: var(--accent-green); font-weight: bold;">●</span> Posición conservada (100% similitud)<br>`;
-        html += `<span style="color: #f1c40f; font-weight: bold;">●</span> Posición parcialmente conservada (>50% similitud)<br>`;
-        html += `<span style="color: var(--primary-red); font-weight: bold;">●</span> Posición variable (<50% similitud)<br>`;
-        html += `<span style="color: var(--text-gray);">-</span> Gap en la secuencia`;
+        html += `<span style="color: var(--accent-green); font-weight: bold;">●</span> 100% conserved position<br>`;
+        html += `<span style="color: #f1c40f; font-weight: bold;">●</span> >50% conserved position<br>`;
+        html += `<span style="color: var(--primary-red); font-weight: bold;">●</span> <50% conserved position<br>`;
+        html += `<span style="color: var(--text-gray);">-</span> Gap in the sequence`;
         html += `</div>`;
         html += `</div>`;
         html += `</div>`;
@@ -429,7 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const gridCols = sequences.length + 1;
         html = html.replace('display: grid;', `display: grid; grid-template-columns: repeat(${gridCols}, 1fr);`);
         
-        html += '<div class="matrix-cell matrix-header">Secuencia</div>';
+        html += '<div class="matrix-cell matrix-header">Sequence</div>';
         
         sequences.forEach(seq => {
             const shortTitle = seq.title.length > 10 ? seq.title.substring(0, 10) + '...' : seq.title;
@@ -509,7 +509,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <i class="fas fa-dna"></i> ${sequence.title}
                     </h4>
                     <span style="background-color: rgba(42, 157, 143, 0.2); color: var(--accent-green); padding: 4px 12px; border-radius: 15px; font-size: 0.9rem;">
-                        Secuencia #${index + 1}
+                        Sequence #${index + 1}
                     </span>
                 </div>
                 
@@ -519,7 +519,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             ${totalBases.toLocaleString()}
                         </div>
                         <div class="main-stat-label" style="color: var(--text-gray); font-size: 0.9rem;">
-                            Bases Totales
+                            Total Bases
                         </div>
                     </div>
                     <div class="main-stat-card">
@@ -527,7 +527,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             ${gcContent.toFixed(2)}%
                         </div>
                         <div class="main-stat-label" style="color: var(--text-gray); font-size: 0.9rem;">
-                            Contenido GC
+                            GC Content
                         </div>
                     </div>
                     <div class="main-stat-card">
@@ -535,7 +535,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             ${atContent.toFixed(2)}%
                         </div>
                         <div class="main-stat-label" style="color: var(--text-gray); font-size: 0.9rem;">
-                            Contenido AT
+                            AT Content
                         </div>
                     </div>
                 </div>
@@ -543,7 +543,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div style="background-color: rgba(30, 30, 30, 0.5); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
                     <h5 style="color: var(--text-gray); margin-bottom: 1rem; display: flex; align-items: center;">
                         <i class="fas fa-chart-pie" style="margin-right: 0.5rem;"></i>
-                        Composición de Bases
+                        Base Composition
                     </h5>
                     <div class="base-composition-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 1rem;">
                         ${generateBaseCompositionHTML(sequence.bases, totalBases)}
@@ -553,7 +553,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div style="background-color: rgba(30, 30, 30, 0.5); padding: 1.5rem; border-radius: 8px;">
                     <h5 style="color: var(--text-gray); margin-bottom: 1rem; display: flex; align-items: center;">
                         <i class="fas fa-chart-bar" style="margin-right: 0.5rem;"></i>
-                        Distribución Visual
+                        Visual Distribution
                     </h5>
                     ${generateProgressBarsHTML(sequence.bases, totalBases)}
                 </div>
@@ -658,7 +658,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (selectedSequence.sequence.length > 120) {
                 const moreIndicator = document.createElement('span');
                 moreIndicator.style.color = 'var(--text-gray)';
-                moreIndicator.textContent = ` ... (${selectedSequence.sequence.length - 120} más)`;
+                moreIndicator.textContent = ` ... (${selectedSequence.sequence.length - 120} more)`;
                 dnaDisplay.appendChild(moreIndicator);
             }
         }
@@ -759,9 +759,9 @@ document.addEventListener('DOMContentLoaded', function() {
         displayMotifResults(motif, results);
         
         if (results.length > 0) {
-            showNotification(`Se encontraron ${results.length} coincidencias`, 'success');
+            showNotification(`Found ${results.length} matches`, 'success');
         } else {
-            showNotification('No se encontraron coincidencias', 'warning');
+            showNotification('No matches found', 'warning');
         }
     }
     
@@ -799,13 +799,13 @@ document.addEventListener('DOMContentLoaded', function() {
         resultsContainer.innerHTML = '';
         
         const resultsTitle = document.createElement('h4');
-        resultsTitle.textContent = `Resultados para "${motif}":`;
+        resultsTitle.textContent = `Results for "${motif}":`;
         resultsTitle.style.color = 'var(--accent-green)';
         resultsContainer.appendChild(resultsTitle);
         
         if (results.length === 0) {
             const noResults = document.createElement('p');
-            noResults.textContent = 'No se encontraron coincidencias.';
+            noResults.textContent = 'No matches found.';
             noResults.style.color = 'var(--text-gray)';
             resultsContainer.appendChild(noResults);
             return;
@@ -830,7 +830,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                     <strong style="color: var(--accent-green);">${result.sequenceTitle}</strong>
                     <span style="color: var(--text-gray); font-size: 0.9rem;">
-                        Posición ${result.position}-${result.endPosition}
+                        Position ${result.position}-${result.endPosition}
                     </span>
                 </div>
                 ${result.context ? `
@@ -871,15 +871,15 @@ document.addEventListener('DOMContentLoaded', function() {
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; text-align: center;">
                 <div>
                     <div style="font-size: 1.5rem; font-weight: bold; color: var(--accent-green);">${results.length}</div>
-                    <div style="color: var(--text-gray); font-size: 0.9rem;">Total coincidencias</div>
+                    <div style="color: var(--text-gray); font-size: 0.9rem;">Total matches</div>
                 </div>
                 <div>
                     <div style="font-size: 1.5rem; font-weight: bold; color: var(--accent-green);">${uniqueSequences}</div>
-                    <div style="color: var(--text-gray); font-size: 0.9rem;">Secuencias afectadas</div>
+                    <div style="color: var(--text-gray); font-size: 0.9rem;">Sequences affected</div>
                 </div>
                 <div>
                     <div style="font-size: 1.5rem; font-weight: bold; color: var(--accent-green);">${avgPositions}</div>
-                    <div style="color: var(--text-gray); font-size: 0.9rem;">Posición promedio</div>
+                    <div style="color: var(--text-gray); font-size: 0.9rem;">Average position</div>
                 </div>
             </div>
         `;
@@ -914,7 +914,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         navigator.clipboard.writeText(fastaContent).then(() => {
-            showNotification('Secuencias copiadas al portapapeles', 'success');
+            showNotification('Sequences copied to clipboard', 'success');
         }).catch(err => {
             const textArea = document.createElement('textarea');
             textArea.value = fastaContent;
@@ -922,7 +922,7 @@ document.addEventListener('DOMContentLoaded', function() {
             textArea.select();
             document.execCommand('copy');
             document.body.removeChild(textArea);
-            showNotification('Secuencias copiadas al portapapeles', 'success');
+            showNotification('Sequences copied to clipboard', 'success');
         });
     }
     
@@ -932,7 +932,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                btn.textContent.includes('Exportar FASTA'));
         
         const originalHTML = exportButton.innerHTML;
-        exportButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exportando...';
+        exportButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
         exportButton.disabled = true;
         
         fetch('/export_fasta', {
@@ -962,10 +962,10 @@ document.addEventListener('DOMContentLoaded', function() {
             
             window.URL.revokeObjectURL(url);
             
-            showNotification(`Archivo FASTA exportado: ${a.download}`, 'success');
+            showNotification(`FASTA file exported: ${a.download}`, 'success');
         })
         .catch(error => {
-            showNotification('Error al exportar archivo FASTA: ' + error.message, 'error');
+            showNotification('Error exporting FASTA file: ' + error.message, 'error');
         })
         .finally(() => {
             exportButton.innerHTML = originalHTML;
@@ -1014,12 +1014,12 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         const dnaBases = document.querySelectorAll('.dna-base');
         dnaBases.forEach((base, index) => {
-            addTooltip(base, `Posición ${index + 1}: ${base.textContent}`);
+            addTooltip(base, `Position ${index + 1}: ${base.textContent}`);
         });
     }, 1000);
     
     const distanceResult = document.getElementById('distance-result');
     if (distanceResult) {
-        addTooltip(distanceResult, 'Distancia genética calculada mediante alineamiento múltiple');
+        addTooltip(distanceResult, 'Genetic distance calculated by multiple alignment');
     }
 });

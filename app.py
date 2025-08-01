@@ -1,18 +1,17 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
-#render_template para combinar HTML con datos de Python
-#request para manejar solicitudes HTTP, acceder a kson del cuerpo, manjear metodos GET POST, ver paramertros de la url
-# redirect para redirigir a otra ruta
-#url_for para generar URLs para las rutas de la aplicación
-#jsonify para convertir datos de Python a JSON y enviarlos como respuesta HTTP
+#render_template to combine HTML with Python data
+#request to handle HTTP requests, access JSON body, handle GET POST methods, see url parameters
+# redirect to redirect to another route
+#url_for to generate URLs for app routes
+#jsonify to convert Python data to JSON and send as HTTP response
 
-
-from Bio import SeqIO #leer secuencias
+from Bio import SeqIO #read sequences
 from Bio.SeqUtils import gc_fraction
 from io import StringIO
 import json
 import matplotlib
 import seaborn as sns
-matplotlib.use('Agg')  # Para evitar problemas con GUI
+matplotlib.use('Agg')  # To avoid GUI issues
 import matplotlib.pyplot as plt
 import numpy as np
 import base64
@@ -26,31 +25,30 @@ from Bio.Align import MultipleSeqAlignment
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
-#Creo instancia que gestiona archivos y rutas, gestiona en sí la aplicacion web
+#Create instance that manages files and routes, manages the web app itself
 app = Flask(__name__)
 
 UPLOAD_FOLDER = 'uploads'
-# Usar ruta relativa al archivo app.py
+# Use path relative to app.py
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MUSCLE_PATH = os.path.join(BASE_DIR, 'bin', 'muscle.exe')
-#crea carpetas si no existen
-os.makedirs(UPLOAD_FOLDER, exist_ok=True) #para archivos
-os.makedirs('static', exist_ok=True) # para css,jss, imagens
+#creates folders if they don't exist
+os.makedirs(UPLOAD_FOLDER, exist_ok=True) #for files
+os.makedirs('static', exist_ok=True) # for css, js, images
 
-#Cuando el usuario visite la URL raíz /, ejecuta la función que muestra el html index
-#el navegaor pide, solicitud get, algo que mostrar, y el servidor responde con el contenido del index.html
+#When the user visits the root URL /, executes the function that shows the index html
+#the browser requests, get request, something to show, and the server responds with the content of index.html
 @app.route('/')
 def index():
     return render_template('index.html')
-#cargo el index html y lo muestra en el navegador
+#loads the index html and shows it in the browser
 
-
-#navegador envia, solitiud post, datos al servidor flask, que responde ejecutando analyz
+#browser sends, post request, data to the flask server, which responds by executing analyze
 @app.route('/analyze', methods=['POST'])
 def analyze():
     sequences = []
-    #request busca en el cuerpo de la solicitud post los datos enviados por el usuario
-    #leen, del formulario HTML, todas las entradas cuyos name sean exactamente manual_sequences[] y manual_titles[]
+    #request looks in the body of the post request for the data sent by the user
+    #reads, from the HTML form, all entries whose name are exactly manual_sequences[] and manual_titles[]
     manual_sequences = request.form.getlist('manual_sequences[]')
     manual_titles = request.form.getlist('manual_titles[]')
     
@@ -58,7 +56,7 @@ def analyze():
         if seq.strip():
             sequences.append({'title': title, 'sequence': seq})
     
-    # Procesar archivo FASTA
+    # Process FASTA file
     fasta_file = request.files.get('fasta_file')
     if fasta_file and fasta_file.filename != '':
         fasta_content = fasta_file.read().decode('utf-8')
@@ -66,29 +64,29 @@ def analyze():
         for record in SeqIO.parse(fasta_io, "fasta"):
             sequences.append({'title': record.id, 'sequence': str(record.seq)})
     
-    # Si no hay secuencias, redirigir a la página principal
+    # If there are no sequences, redirect to the main page
     if not sequences:
         return redirect(url_for('index'))
     
-    # Calcular estadísticas para cada secuencia
+    # Calculate statistics for each sequence
     for seq_data in sequences:
         sequence = seq_data['sequence']
         seq_data['length'] = len(sequence)
         seq_data['gc'] = 100*gc_fraction(sequence, ambiguous="ignore")
         
-        # Contar bases
+        # Count bases
         bases = {'A': 0, 'T': 0, 'C': 0, 'G': 0, 'N': 0}
         for base in sequence.upper():
             if base in bases:
                 bases[base] += 1
             else:
-                bases['N'] += 1  # Bases no reconocidas
+                bases['N'] += 1  # Unrecognized bases
         seq_data['bases'] = bases
     
-    # Generar histograma de longitudes
+    # Generate histogram of lengths
     histogram_img = generate_histogram([s['length'] for s in sequences])
     
-    # Calcular estadísticas globales
+    # Calculate global statistics
     global_stats = {
         'total_sequences': len(sequences),
         'total_bases': sum(s['length'] for s in sequences),
@@ -96,15 +94,15 @@ def analyze():
         'base_percentages': calculate_base_percentages(sequences)
     }
 
-    # Generar árbol filogenético y obtener distancias reales
+    # Generate phylogenetic tree and get real distances
     phylo_tree_img = None
     distance_matrix = None
-    if len(sequences) > 1:  # Solo si hay más de una secuencia
-        print(f"Generando árbol filogenético para {len(sequences)} secuencias...")
+    if len(sequences) > 1:  # Only if there is more than one sequence
+        print(f"Generating phylogenetic tree for {len(sequences)} sequences...")
         phylo_tree_img, distance_matrix = generate_phylogenetic_tree_with_distances(sequences)
-        print(f"Resultado: tree_img={'Generado' if phylo_tree_img else 'None'}, distances={'Generadas' if distance_matrix else 'None'}")
+        print(f"Result: tree_img={'Generated' if phylo_tree_img else 'None'}, distances={'Generated' if distance_matrix else 'None'}")
     
-    # Renderizar la página de resultados con los datos
+    # Render the results page with the data
     return render_template('results.html',
                            sequences=sequences,
                            global_stats=global_stats,
@@ -113,7 +111,7 @@ def analyze():
                            distance_matrix=distance_matrix)
 
 def calculate_base_percentages(sequences):
-    """Calcula el porcentaje de cada base en todas las secuencias"""
+    """Calculates the percentage of each base in all sequences"""
     total_bases = sum(s['length'] for s in sequences)
     base_counts = Counter()
     
@@ -124,51 +122,51 @@ def calculate_base_percentages(sequences):
     return {base: (count / total_bases) * 100 for base, count in base_counts.items()}
 
 def generate_histogram(lengths):
-    """Genera un histograma de longitudes de secuencia con Seaborn"""
+    """Generates a histogram of sequence lengths with Seaborn"""
     import matplotlib.pyplot as plt
     import seaborn as sns
     import numpy as np
     from io import BytesIO
     import base64
     
-    # Configuración global de estilo - SIN GRID, TRANSPARENTE
-    plt.style.use('dark_background')  # Fondo oscuro para contraste
+    # Global style config - NO GRID, TRANSPARENT
+    plt.style.use('dark_background')  # Dark background for contrast
     plt.rcParams.update({
-        'axes.facecolor': 'none',      # Fondo transparente para el área del gráfico
-        'figure.facecolor': 'none',    # Fondo transparente para la figura completa
-        'axes.edgecolor': 'white',     # Color blanco para los ejes
-        'axes.labelcolor': 'white',    # Color blanco para las etiquetas
-        'xtick.color': 'white',        # Color blanco para marcas del eje X
-        'ytick.color': 'white',        # Color blanco para marcas del eje Y
-        'grid.color': 'none'           # Sin grid
+        'axes.facecolor': 'none',      # Transparent background for plot area
+        'figure.facecolor': 'none',    # Transparent background for the whole figure
+        'axes.edgecolor': 'white',     # White color for axes
+        'axes.labelcolor': 'white',    # White color for labels
+        'xtick.color': 'white',        # White color for X axis ticks
+        'ytick.color': 'white',        # White color for Y axis ticks
+        'grid.color': 'none'           # No grid
     })
     
-    # Crear figura con fondo transparente
+    # Create figure with transparent background
     plt.figure(figsize=(8, 4), facecolor='none')
     
-    # Crear histograma SIN bordes y SIN grid
+    # Create histogram WITHOUT borders and WITHOUT grid
     ax = sns.histplot(
         lengths, 
         bins=15, 
         color='#e63946', 
         kde=True,
-        edgecolor='none',  # Eliminar bordes de las barras (aquí es donde se debe hacer)
-        line_kws={'color': 'white'}  # Línea KDE en blanco
+        edgecolor='none',  # Remove bar borders
+        line_kws={'color': 'white'}  # KDE line in white
     )
     
-    # Eliminar grid completamente
+    # Remove grid completely
     ax.grid(False)
     
-    # Personalizar título y etiquetas
-    plt.title('Distribución de Longitudes de Secuencias', fontsize=14, color='white')
-    plt.xlabel('Longitud (bp)', fontsize=12, color='white')
-    plt.ylabel('Número de Secuencias', fontsize=12, color='white')
+    # Customize title and labels
+    plt.title('Sequence Length Distribution', fontsize=14, color='white')
+    plt.xlabel('Length (bp)', fontsize=12, color='white')
+    plt.ylabel('Number of Sequences', fontsize=12, color='white')
     
-    # Personalizar línea KDE
-    if ax.lines:  # Si existe la línea KDE
+    # Customize KDE line
+    if ax.lines:  # If KDE line exists
         ax.lines[0].set_color('white')
     
-    # Añadir línea de promedio
+    # Add mean line
     if lengths:
         mean_length = np.mean(lengths)
         plt.axvline(
@@ -178,16 +176,16 @@ def generate_histogram(lengths):
             linewidth=2
         )
         
-        # Texto de media bien posicionado
+        # Well-positioned mean text
         plt.text(
             0.98, 
-            0.98,  # 98% del ancho y alto
-            f'Media: {mean_length:.0f} bp', 
+            0.98,  # 98% of width and height
+            f'Mean: {mean_length:.0f} bp', 
             color='#2a9d8f', 
             fontsize=12,
-            transform=plt.gca().transAxes,  # Coordenadas relativas
-            horizontalalignment='right',    # Alinear derecha
-            verticalalignment='top',        # Alinear arriba
+            transform=plt.gca().transAxes,  # Relative coordinates
+            horizontalalignment='right',    # Align right
+            verticalalignment='top',        # Align top
             bbox=dict(
                 facecolor='black', 
                 alpha=0.5, 
@@ -196,66 +194,66 @@ def generate_histogram(lengths):
             )
         )
     
-    # Eliminar spines innecesarios
+    # Remove unnecessary spines
     sns.despine(left=True, bottom=True)
     
-    # Personalizar spines visibles
+    # Customize visible spines
     for spine in ['left', 'bottom']:
         ax.spines[spine].set_color('white')
         ax.spines[spine].set_linewidth(0.5)
     
-    # Guardar en buffer con fondo transparente
+    # Save to buffer with transparent background
     buffer = BytesIO()
     plt.savefig(
         buffer, 
         format='png', 
         bbox_inches='tight', 
         dpi=100, 
-        transparent=True  # Fondo transparente
+        transparent=True  # Transparent background
     )
     plt.close()
     
-    # Convertir a base64 para incrustar en HTML
+    # Convert to base64 for embedding in HTML
     img_data = base64.b64encode(buffer.getvalue()).decode('utf-8')
     return f"data:image/png;base64,{img_data}"
 
 def generate_phylogenetic_tree_with_distances(sequences):
-    """Genera un árbol filogenético y devuelve tanto la imagen como la matriz de distancias"""
+    """Generates a phylogenetic tree and returns both the image and the distance matrix"""
     try:
-        print("Iniciando generación de árbol filogenético...")
-        print(f"Directorio de trabajo actual: {os.getcwd()}")
-        print(f"Ruta de MUSCLE: {MUSCLE_PATH}")
-        print(f"Ruta absoluta de MUSCLE: {os.path.abspath(MUSCLE_PATH)}")
+        print("Starting phylogenetic tree generation...")
+        print(f"Current working directory: {os.getcwd()}")
+        print(f"MUSCLE path: {MUSCLE_PATH}")
+        print(f"Absolute MUSCLE path: {os.path.abspath(MUSCLE_PATH)}")
         
-        # Validar que MUSCLE existe
+        # Validate MUSCLE exists
         if not os.path.exists(MUSCLE_PATH):
-            print(f"ERROR: MUSCLE no encontrado en {MUSCLE_PATH}")
-            print("Contenido del directorio actual:")
+            print(f"ERROR: MUSCLE not found at {MUSCLE_PATH}")
+            print("Current directory contents:")
             for item in os.listdir('.'):
                 print(f"  - {item}")
             if os.path.exists('bin'):
-                print("Contenido del directorio bin:")
+                print("bin directory contents:")
                 for item in os.listdir('bin'):
                     print(f"  - bin/{item}")
             return generate_simple_phylogenetic_tree(sequences)
         
-        # Crear archivo FASTA temporal
+        # Create temporary FASTA file
         input_file = os.path.join(UPLOAD_FOLDER, 'temp_input.fasta')
         aligned_file = os.path.join(UPLOAD_FOLDER, 'temp_aligned.fasta')
         
-        print("Escribiendo secuencias en archivo temporal...")
-        # Validar y limpiar secuencias antes de escribir
+        print("Writing sequences to temporary file...")
+        # Validate and clean sequences before writing
         valid_sequences = []
         for i, seq_data in enumerate(sequences):
             sequence = seq_data['sequence'].upper().strip()
             title = seq_data['title'].strip()
             
-            # Validar que la secuencia no esté vacía
+            # Validate sequence is not empty
             if not sequence:
-                print(f"ADVERTENCIA: Secuencia '{title}' está vacía, omitiendo...")
+                print(f"WARNING: Sequence '{title}' is empty, skipping...")
                 continue
                 
-            # Limpiar título para evitar problemas con MUSCLE
+            # Clean title to avoid MUSCLE issues
             clean_title = title.replace(' ', '_').replace('|', '_').replace(':', '_').replace(';', '_')
             if not clean_title:
                 clean_title = f"Seq_{i+1}"
@@ -263,20 +261,20 @@ def generate_phylogenetic_tree_with_distances(sequences):
             valid_sequences.append({'title': clean_title, 'sequence': sequence})
         
         if len(valid_sequences) < 2:
-            print("ERROR: Se necesitan al menos 2 secuencias válidas")
+            print("ERROR: At least 2 valid sequences are required")
             return generate_simple_phylogenetic_tree(sequences)
         
-        # Escribir secuencias en formato FASTA
+        # Write sequences in FASTA format
         with open(input_file, 'w') as f:
             for seq_data in valid_sequences:
                 f.write(f">{seq_data['title']}\n{seq_data['sequence']}\n")
                 
-        print(f"Archivo FASTA creado con {len(valid_sequences)} secuencias válidas")
+        print(f"FASTA file created with {len(valid_sequences)} valid sequences")
         
-        print(f"Ejecutando MUSCLE: {MUSCLE_PATH}")
-        # MUSCLE 5.3 usa sintaxis: -align input -output output
+        print(f"Running MUSCLE: {MUSCLE_PATH}")
+        # MUSCLE 5.3 uses syntax: -align input -output output
         muscle_cline = f'"{MUSCLE_PATH}" -align "{input_file}" -output "{aligned_file}"'
-        print(f"Comando completo: {muscle_cline}")
+        print(f"Full command: {muscle_cline}")
         
         result = subprocess.run(muscle_cline, shell=True, capture_output=True, text=True, timeout=120)
         
@@ -286,91 +284,91 @@ def generate_phylogenetic_tree_with_distances(sequences):
         if result.stdout:
             print(f"MUSCLE stdout: {result.stdout}")
             
-        # Verificar si el archivo de salida se creó y tiene contenido
+        # Check if output file was created and has content
         if os.path.exists(aligned_file):
             file_size = os.path.getsize(aligned_file)
-            print(f"Archivo alineado creado: {aligned_file} ({file_size} bytes)")
+            print(f"Aligned file created: {aligned_file} ({file_size} bytes)")
             if file_size == 0:
-                print("ADVERTENCIA: El archivo alineado está vacío")
+                print("WARNING: Aligned file is empty")
                 return generate_simple_phylogenetic_tree(sequences)
         else:
-            print(f"ERROR: No se creó el archivo alineado: {aligned_file}")
+            print(f"ERROR: Aligned file not created: {aligned_file}")
             return generate_simple_phylogenetic_tree(sequences)
         
         if result.returncode != 0:
-            print("MUSCLE terminó con error, usando método alternativo...")
+            print("MUSCLE ended with error, using alternative method...")
             return generate_simple_phylogenetic_tree(sequences)
         
-        print("Leyendo alineamiento...")
-        # Leer alineamiento
+        print("Reading alignment...")
+        # Read alignment
         try:
             alignment = AlignIO.read(aligned_file, 'fasta')
-            print(f"Alineamiento leído: {len(alignment)} secuencias")
+            print(f"Alignment read: {len(alignment)} sequences")
         except Exception as e:
-            print(f"Error leyendo alineamiento: {e}")
+            print(f"Error reading alignment: {e}")
             return generate_simple_phylogenetic_tree(sequences)
         
-        # Calcular distancias y árbol
-        print("Calculando distancias...")
+        # Calculate distances and tree
+        print("Calculating distances...")
         calculator = DistanceCalculator('identity')
         dm = calculator.get_distance(alignment)
         constructor = DistanceTreeConstructor()
         tree = constructor.nj(dm)
         
-        # Convertir matriz de distancias a formato utilizable
+        # Convert distance matrix to usable format
         seq_names = [seq['title'] for seq in sequences]
         distance_dict = {}
         
         for i, name1 in enumerate(seq_names):
             for j, name2 in enumerate(seq_names):
-                if i < j:  # Solo calcular distancias únicas (triangular superior)
+                if i < j:  # Only calculate unique distances (upper triangle)
                     distance = dm[i, j]
                     distance_dict[f"{name1}|{name2}"] = round(distance, 4)
         
-        print("Generando imagen del árbol...")
-        # Generar imagen del árbol con fondo temático
+        print("Generating tree image...")
+        # Generate tree image with themed background
         fig, ax = plt.subplots(figsize=(10, 6))
         
-        # Crear un fondo degradado que combine con el tema de la página
-        # Usando los colores de tu tema: tonos oscuros con acentos rojos/verdes
+        # Create a gradient background matching the page theme
+        # Using your theme colors: dark tones with red/green accents
         from matplotlib.colors import LinearSegmentedColormap
         
-        # Definir colores del degradado (de tu tema CSS)
-        colors = ['#1a1a1a', '#2a2a2a', '#1e1e1e']  # Tonos oscuros
+        # Define gradient colors (from your CSS theme)
+        colors = ['#1a1a1a', '#2a2a2a', '#1e1e1e']  # Dark tones
         n_bins = 100
         cmap = LinearSegmentedColormap.from_list('custom', colors, N=n_bins)
         
-        # Crear fondo degradado
+        # Create gradient background
         gradient = np.linspace(0, 1, 256).reshape(1, -1)
         gradient = np.vstack((gradient, gradient))
         ax.imshow(gradient, aspect='auto', cmap=cmap, alpha=0.8,
                  extent=[ax.get_xlim()[0], ax.get_xlim()[1], 
                         ax.get_ylim()[0], ax.get_ylim()[1]])
         
-        # Dibujar el árbol (manteniendo colores por defecto)
+        # Draw the tree (keep default colors)
         Phylo.draw(tree, do_show=False, axes=ax)
         
-        # Personalizar el título
-        plt.title('Árbol Filogenético', color='white', fontsize=16, 
+        # Customize the title
+        plt.title('Phylogenetic Tree', color='white', fontsize=16, 
                  fontweight='bold', pad=20)
         
-        # Hacer los ejes transparentes pero mantener el fondo
+        # Make axes transparent but keep background
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
         ax.spines['bottom'].set_visible(False)
         ax.spines['left'].set_visible(False)
         ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
         
-        # Ajustar márgenes
+        # Adjust margins
         plt.tight_layout()
         
-        # Guardar como base64
+        # Save as base64
         buffer = BytesIO()
         plt.savefig(buffer, format='png', bbox_inches='tight', dpi=100, 
                    facecolor='#1a1a1a', edgecolor='none')
         plt.close()
         
-        # Limpiar archivos temporales
+        # Clean up temporary files
         try:
             if os.path.exists(input_file):
                 os.remove(input_file)
@@ -382,25 +380,25 @@ def generate_phylogenetic_tree_with_distances(sequences):
         img_data = base64.b64encode(buffer.getvalue()).decode('utf-8')
         tree_img = f"data:image/png;base64,{img_data}"
         
-        print("Árbol filogenético generado exitosamente!")
+        print("Phylogenetic tree generated successfully!")
         return tree_img, distance_dict
         
     except Exception as e:
-        print(f"Error generando árbol filogenético: {e}")
+        print(f"Error generating phylogenetic tree: {e}")
         import traceback
         traceback.print_exc()
         return generate_simple_phylogenetic_tree(sequences)
 
 def generate_simple_phylogenetic_tree(sequences):
-    """Genera un árbol filogenético simple sin MUSCLE usando distancias de Hamming"""
+    """Generates a simple phylogenetic tree without MUSCLE using Hamming distances"""
     try:
-        print("Generando árbol filogenético simple...")
+        print("Generating simple phylogenetic tree...")
         
-        # Calcular distancias de Hamming simples
+        # Calculate simple Hamming distances
         distance_dict = {}
         seq_names = [seq['title'] for seq in sequences]
         
-        # Crear matriz de distancias manualmente
+        # Create distance matrix manually
         distance_matrix = []
         for i, seq1 in enumerate(sequences):
             row = []
@@ -408,7 +406,7 @@ def generate_simple_phylogenetic_tree(sequences):
                 if i == j:
                     distance = 0.0
                 else:
-                    # Calcular distancia de Hamming simple
+                    # Calculate simple Hamming distance
                     s1, s2 = seq1['sequence'], seq2['sequence']
                     min_len = min(len(s1), len(s2))
                     max_len = max(len(s1), len(s2))
@@ -417,23 +415,23 @@ def generate_simple_phylogenetic_tree(sequences):
                         distance = 1.0
                     else:
                         differences = sum(1 for k in range(min_len) if s1[k] != s2[k])
-                        differences += abs(len(s1) - len(s2))  # Penalizar diferencias de longitud
+                        differences += abs(len(s1) - len(s2))  # Penalize length differences
                         distance = differences / max_len
                 
                 row.append(distance)
                 
-                # Guardar en diccionario para JavaScript
+                # Save in dict for JavaScript
                 if i < j:
                     distance_dict[f"{seq1['title']}|{seq2['title']}"] = round(distance, 4)
             
             distance_matrix.append(row)
         
-        # Crear alineamiento simple (sin alinear realmente)
+        # Create simple alignment (without real alignment)
         from Bio.Align import MultipleSeqAlignment
         from Bio.SeqRecord import SeqRecord
         from Bio.Seq import Seq
         
-        # Crear records para BioPython
+        # Create records for BioPython
         records = []
         max_length = max(len(seq['sequence']) for seq in sequences)
         
@@ -446,17 +444,17 @@ def generate_simple_phylogenetic_tree(sequences):
         
         alignment = MultipleSeqAlignment(records)
         
-        # Usar BioPython para crear el árbol
+        # Use BioPython to create the tree
         calculator = DistanceCalculator('identity')
         dm = calculator.get_distance(alignment)
         constructor = DistanceTreeConstructor()
         tree = constructor.nj(dm)
         
-        # Generar imagen del árbol
+        # Generate tree image
         plt.figure(figsize=(10, 6), facecolor='none')
         plt.style.use('dark_background')
         
-        # Configurar colores para que todo sea blanco
+        # Set all colors to white
         plt.rcParams.update({
             'axes.edgecolor': 'white',
             'axes.labelcolor': 'white', 
@@ -467,28 +465,28 @@ def generate_simple_phylogenetic_tree(sequences):
             'patch.edgecolor': 'white'
         })
         
-        # Dibujar árbol
+        # Draw tree
         ax = plt.gca()
         Phylo.draw(tree, do_show=False, axes=ax)
         
-        # Forzar que todas las líneas sean blancas
+        # Force all lines to white
         for line in ax.lines:
             line.set_color('white')
             line.set_linewidth(2)
         
-        # Forzar que todo el texto sea blanco
+        # Force all text to white
         for text in ax.texts:
             text.set_color('white')
             text.set_fontsize(10)
         
-        plt.title('Árbol Filogenético (Distancias Simples)', color='white', fontsize=14, pad=20)
+        plt.title('Phylogenetic Tree (Simple Distances)', color='white', fontsize=14, pad=20)
         
-        # Hacer el fondo transparente
+        # Make background transparent
         ax.set_facecolor('none')
         for spine in ax.spines.values():
             spine.set_visible(False)
         
-        # Guardar como base64
+        # Save as base64
         buffer = BytesIO()
         plt.savefig(buffer, format='png', bbox_inches='tight', dpi=100, transparent=True)
         plt.close()
@@ -496,16 +494,16 @@ def generate_simple_phylogenetic_tree(sequences):
         img_data = base64.b64encode(buffer.getvalue()).decode('utf-8')
         tree_img = f"data:image/png;base64,{img_data}"
         
-        print("Árbol filogenético simple generado exitosamente!")
+        print("Simple phylogenetic tree generated successfully!")
         return tree_img, distance_dict
         
     except Exception as e:
-        print(f"Error en árbol filogenético simple: {e}")
+        print(f"Error in simple phylogenetic tree: {e}")
         import traceback
         traceback.print_exc()
         return None, None
 
-# Nueva ruta para obtener distancia específica
+# New route to get specific distance
 @app.route('/get_distance', methods=['POST'])
 def get_distance():
     data = request.get_json()
@@ -513,7 +511,7 @@ def get_distance():
     seq2 = data.get('seq2')
     distance_matrix = data.get('distance_matrix', {})
     
-    # Buscar la distancia en ambas direcciones
+    # Look for the distance in both directions
     key1 = f"{seq1}|{seq2}"
     key2 = f"{seq2}|{seq1}"
     
@@ -522,9 +520,9 @@ def get_distance():
     if distance is not None:
         return jsonify({'distance': distance})
     else:
-        return jsonify({'distance': 0.0})  # Misma secuencia
+        return jsonify({'distance': 0.0})  # Same sequence
 
-# Nueva ruta para exportar FASTA
+# New route to export FASTA
 @app.route('/export_fasta', methods=['POST'])
 def export_fasta():
     from flask import make_response
@@ -535,9 +533,9 @@ def export_fasta():
         sequences = data.get('sequences', [])
         
         if not sequences:
-            return jsonify({'error': 'No hay secuencias para exportar'}), 400
+            return jsonify({'error': 'No sequences to export'}), 400
         
-        # Generar contenido FASTA
+        # Generate FASTA content
         fasta_content = ""
         for seq in sequences:
             title = seq.get('title', 'Unnamed_sequence')
@@ -547,16 +545,16 @@ def export_fasta():
                 fasta_content += f">{title}\n{sequence}\n"
         
         if not fasta_content:
-            return jsonify({'error': 'No hay secuencias válidas para exportar'}), 400
+            return jsonify({'error': 'No valid sequences to export'}), 400
         
-        # Crear respuesta con archivo
+        # Create response with file
         response = make_response(fasta_content)
         
-        # Generar nombre de archivo con timestamp
+        # Generate filename with timestamp
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"genomics_freedom_export_{timestamp}.fasta"
         
-        # Configurar headers para descarga
+        # Set headers for download
         response.headers['Content-Type'] = 'text/plain'
         response.headers['Content-Disposition'] = f'attachment; filename="{filename}"'
         response.headers['Content-Length'] = len(fasta_content)
@@ -564,8 +562,9 @@ def export_fasta():
         return response
         
     except Exception as e:
-        print(f"Error en exportación FASTA: {e}")
-        return jsonify({'error': 'Error interno del servidor'}), 500
+        print(f"Error in FASTA export: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
     
 if __name__ == '__main__':
     app.run(debug=True)
+

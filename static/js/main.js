@@ -64,13 +64,13 @@ function addSequenceEntry() {
     newEntry.className = 'sequence-entry';
     newEntry.innerHTML = `
         <div class="form-group">
-            <label>Título de la Secuencia</label>
-            <input type="text" name="manual_titles[]" placeholder="Ej: Gen TP53 humano">
+            <label>Sequence Title</label>
+            <input type="text" name="manual_titles[]" placeholder="E.g.: Human TP53 gene">
         </div>
         
         <div class="form-group">
-            <label>Secuencia Genética (ADN)</label>
-            <textarea name="manual_sequences[]" placeholder="Ingresa la secuencia de nucleótidos (A, T, C, G)..."></textarea>
+            <label>Genetic Sequence (DNA)</label>
+            <textarea name="manual_sequences[]" placeholder="Enter the nucleotide sequence (A, T, C, G)..."></textarea>
         </div>
     `;
     container.appendChild(newEntry);

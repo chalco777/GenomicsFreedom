@@ -14,7 +14,6 @@ GenomicsFreedom is an interactive web application built with **Flask** for explo
 
 ![Input Panel](docs/input_panel.png)
 
-> Replace with a screenshot of the landing page showing manual sequence fields and the FASTA file preview.
 
 ### 2. Global Statistics
 - Total number of sequences and bases.
@@ -23,7 +22,6 @@ GenomicsFreedom is an interactive web application built with **Flask** for explo
 
 ![Global Statistics Panel](docs/global-stats.png)
 
-> Replace with a screenshot of the “Global Statistics” panel displaying the base distribution and the histogram.
 
 ### 3. Per‑Sequence Statistics
 - Individual length, base composition, and GC/AT percentages.
@@ -31,7 +29,6 @@ GenomicsFreedom is an interactive web application built with **Flask** for explo
 
 ![Per-Sequence Statistics Panel](docs/per-sequence.png)
 
-> Replace with a screenshot of the “Per‑Sequence Statistics” panel showing the dropdown and summary cards.
 
 ### 4. Sequence Visualization & Export
 - Color‑coded rendering of nucleotide sequences.
@@ -139,5 +136,14 @@ GenomicsFreedom/
 Contributions are welcome! Open an issue or submit a pull request with your ideas for new features, performance improvements or bug fixes.
 
 Enjoy exploring genomic sequences with GenomicsFreedom!
+
+---
+
+## 📬 Contact
+Adrian Chalco Gonzalez
+adrian.chalco@upch.pe
+
+Benjamín Hurtado Berrocal
+benjamin.hurtado@upch.pe
 
 ---
