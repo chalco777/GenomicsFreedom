@@ -2,7 +2,7 @@
 
 GenomicsFreedom is an interactive web application built with **Flask** for exploring and visualizing genomic sequences. The project combines basic analyses (length, GC content, base distribution) with tools for multiple alignment, phylogenetic tree generation, and motif search, all within a modern interface.
 
-![Input Panel](docs/first_view.png)
+![Entry view](docs/first_view.png)
 
 ---
 
@@ -12,7 +12,7 @@ GenomicsFreedom is an interactive web application built with **Flask** for explo
 - Manual entry of multiple sequences through dynamic forms.
 - FASTA file upload with live preview in the browser.
 
-![Input Panel](path/to/screenshots/input-panel.png)
+![Input Panel](docs/input_panel.png)
 
 > Replace with a screenshot of the landing page showing manual sequence fields and the FASTA file preview.
 
@@ -21,7 +21,7 @@ GenomicsFreedom is an interactive web application built with **Flask** for explo
 - Average GC content and nucleotide distribution.
 - Length histogram generated with Matplotlib/Seaborn.
 
-![Global Statistics Panel](path/to/screenshots/global-stats.png)
+![Global Statistics Panel](docs/global-stats.png)
 
 > Replace with a screenshot of the “Global Statistics” panel displaying the base distribution and the histogram.
 
@@ -29,7 +29,7 @@ GenomicsFreedom is an interactive web application built with **Flask** for explo
 - Individual length, base composition, and GC/AT percentages.
 - Interactive selector with comparative summary across sequences.
 
-![Per-Sequence Statistics Panel](path/to/screenshots/per-sequence.png)
+![Per-Sequence Statistics Panel](docs/per-sequence.png)
 
 > Replace with a screenshot of the “Per‑Sequence Statistics” panel showing the dropdown and summary cards.
 
@@ -37,7 +37,7 @@ GenomicsFreedom is an interactive web application built with **Flask** for explo
 - Color‑coded rendering of nucleotide sequences.
 - Export all sequences to FASTA or copy to clipboard with one click.
 
-![Sequence Visualization Panel](path/to/screenshots/visualization.png)
+![Sequence Visualization Panel](docs/visualization.png)
 
 > Replace with a screenshot of the “Sequence Visualization” panel with the export and copy buttons.
 
@@ -45,7 +45,7 @@ GenomicsFreedom is an interactive web application built with **Flask** for explo
 - Alignment preview/full view/consensus sequence.
 - Dynamic similarity matrix and alignment metrics (length, conserved positions, similarity score, gaps).
 
-![Alignment Panel](path/to/screenshots/alignment.png)
+![Alignment Panel](docs/alignment.png)
 
 > Replace with a screenshot of the “Multiple Alignment” panel including the similarity matrix.
 
@@ -53,14 +53,14 @@ GenomicsFreedom is an interactive web application built with **Flask** for explo
 - MUSCLE integration for high‑quality alignments or fallback to a Hamming‑based tree.
 - Interactive calculator for pairwise genetic distances.
 
-![Phylogenetic Tree Panel](path/to/screenshots/phylo-tree.png)
+![Phylogenetic Tree Panel](docs/phylo-tree.png)
 
 > Replace with a screenshot of the phylogenetic tree panel and the distance calculator.
 
 ### 7. Motif Search
 - Search for custom motifs across all sequences with positional context.
 
-![Motif Search Panel](path/to/screenshots/motif-search.png)
+![Motif Search Panel](docs/motif-search.png)
 
 > Replace with a screenshot of the motif search panel showing a query example.
 
