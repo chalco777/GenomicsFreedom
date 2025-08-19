@@ -780,7 +780,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!resultsContainer) {
             const motifPanels = Array.from(document.querySelectorAll('.panel h3')).filter(h3 => 
-                h3.textContent.toLowerCase().includes('motivo')
+                h3.textContent.toLowerCase().includes('motif')
             );
             
             if (motifPanels.length > 0) {

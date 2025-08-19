@@ -29,14 +29,11 @@ GenomicsFreedom is an interactive web application built with **Flask** for explo
 
 ![Per-Sequence Statistics Panel](docs/per-sequence.png)
 
-
 ### 4. Sequence Visualization & Export
 - Color‑coded rendering of nucleotide sequences.
 - Export all sequences to FASTA or copy to clipboard with one click.
 
 ![Sequence Visualization Panel](docs/visualization.png)
-
-> Replace with a screenshot of the “Sequence Visualization” panel with the export and copy buttons.
 
 ### 5. Multiple Alignment & Similarity Matrix
 - Alignment preview/full view/consensus sequence.
@@ -44,22 +41,16 @@ GenomicsFreedom is an interactive web application built with **Flask** for explo
 
 ![Alignment Panel](docs/alignment.png)
 
-> Replace with a screenshot of the “Multiple Alignment” panel including the similarity matrix.
-
 ### 6. Phylogenetic Tree & Distance Calculator
 - MUSCLE integration for high‑quality alignments or fallback to a Hamming‑based tree.
 - Interactive calculator for pairwise genetic distances.
 
 ![Phylogenetic Tree Panel](docs/phylo-tree.png)
 
-> Replace with a screenshot of the phylogenetic tree panel and the distance calculator.
-
 ### 7. Motif Search
 - Search for custom motifs across all sequences with positional context.
 
-![Motif Search Panel](docs/motif-search.png)
-
-> Replace with a screenshot of the motif search panel showing a query example.
+![Motif Search Panel](docs/motif.png)
 
 ---
 
